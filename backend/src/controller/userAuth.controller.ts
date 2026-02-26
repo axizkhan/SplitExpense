@@ -27,7 +27,7 @@ export class UserAuthController {
 
     const resData = {
       data,
-      message: "User login successfully",
+      message: "User signup successfully",
       statusCode: 201,
     };
 
@@ -41,7 +41,6 @@ export class UserAuthController {
       "local",
       { session: false },
       async (err: Error, user: any, info: any) => {
-        console.log("Inside passport inner function");
         if (err || !user) {
           throw new Unauthorized(
             "Either password or email is incorrect",

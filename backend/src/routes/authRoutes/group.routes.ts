@@ -1,0 +1,17 @@
+import { Router } from "express";
+
+import { GroupController } from "../../controller/group.controller";
+
+export class GroupRouter {
+  public groupRouter: Router;
+  private groupController: GroupController;
+  constructor() {
+    this.groupRouter = Router();
+    this.groupController = new GroupController();
+    this.RouteInitializer();
+  }
+
+  private RouteInitializer() {
+    this.groupRouter.post("/", this.groupController.createGroup);
+  }
+}
