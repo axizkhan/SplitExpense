@@ -21,6 +21,7 @@ export class App {
   middlewareInitializer() {
     this.app.use(express.json());
     this.app.use(cookieParser());
+    this.app.use("/api/auth", passport.authenticate("jwt", { session: false }));
   }
 
   passportInitilizer() {

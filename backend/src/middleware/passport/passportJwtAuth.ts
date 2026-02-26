@@ -11,7 +11,9 @@ export class PassportJWTMIddleware {
           secretOrKey: this.jwt as string,
         },
         async (payload, done) => {
-          console.log(payload);
+          if (!payload) {
+            return done(null, false);
+          }
           return done(null, payload);
         },
       ),

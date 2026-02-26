@@ -18,10 +18,5 @@ export class UserRoute {
       "/login-local",
       this.userAuthController.userLocalLogin,
     );
-    this.UserRouter.post(
-      "/test",
-      passport.authenticate("jwt", { session: false }),
-      (req, res, next) => {},
-    );
   }
 }
