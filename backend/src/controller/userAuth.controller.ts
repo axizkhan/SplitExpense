@@ -22,7 +22,9 @@ export class UserAuthController {
     const hashPassword = await this.hashingUtliFunctions.hashPassword(
       user.password,
     );
+
     user.password = hashPassword;
+
     let data = await this.userAuthService.userLocalSignup(user);
 
     const resData = {

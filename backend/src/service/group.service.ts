@@ -29,4 +29,33 @@ export class GroupService {
     const group = await Group.create(groupDocument);
     return group;
   }
+
+  async isUserExistInGroup(userId: string, groupId: string) {
+    const group = await Group.findOne({
+      _id: groupId,
+      "members.memberId": userId,
+    });
+    if (group) {
+      return group._id;
+    }
+    return null;
+  }
+
+  async addUserToGroup(groupId: string, newUserId: string) {
+    try {
+      const newMemberOject = {
+        memberId: newUserId,
+        amountOwed: 0,
+        amountToBeRecieved: 0,
+      };
+      const result = await Group.updateOne(
+        { _id: groupId, "members.memberId": { $ne: newUserId } },
+        { $push: { members: newMemberOject } },
+      );
+
+      return result.modifiedCount;
+    } catch (err) {
+      throw err;
+    }
+  }
 }

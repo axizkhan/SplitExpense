@@ -57,14 +57,14 @@ export class ErrorHandler {
       }
       errorLog += "*".repeat(80) + "\r\n";
 
-      writeFile(this.errorLogPath, errorLog, (err) => {
-        if (err) {
-          writeFileSync(
-            this.errorLogPath,
-            "Unexpected Error " + "@".repeat(40) + JSON.stringify(err, null, 2),
-          );
-        }
-      });
+      // writeFile(this.errorLogPath, errorLog, (err) => {
+      //   if (err) {
+      //     writeFileSync(
+      //       this.errorLogPath,
+      //       "Unexpected Error " + "@".repeat(40) + JSON.stringify(err, null, 2),
+      //     );
+      //   }
+      // });
     }
   }
 }
