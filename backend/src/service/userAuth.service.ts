@@ -23,11 +23,13 @@ export class UserAuthServices {
     if (user.upiId) {
       userDocument.upiId = user.upiId;
     }
-
+    console.log(userDocument, "UserDocument");
     try {
-      await UserModel.insertOne(userDocument);
+      let newUser = await UserModel.create(userDocument);
+
       return "User Login Successfully";
     } catch (err) {
+      console.log(err);
       throw new Conflict("Email Already Exist", "USER_EXIST");
     }
   }
