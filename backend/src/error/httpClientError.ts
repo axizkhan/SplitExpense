@@ -19,8 +19,11 @@ export class BadRequest extends HttpClientError {
 }
 
 export class Unauthorized extends HttpClientError {
-  constructor(customMessage: string = "Unauthorized") {
-    super(401, customMessage, "UNAUTHORIZED");
+  constructor(
+    customMessage: string = "Unauthorized",
+    error_code: string = "UNAUTHORIZED",
+  ) {
+    super(401, customMessage, error_code);
   }
 }
 
@@ -31,8 +34,11 @@ export class Forbidden extends HttpClientError {
 }
 
 export class NotFound extends HttpClientError {
-  constructor(customMessage: string = "Data Not Found") {
-    super(404, customMessage, "DATA_NOT_FOUND");
+  constructor(
+    customMessage: string = "Data Not Found",
+    error_code: string = "DATA_NOT_FOUND",
+  ) {
+    super(404, customMessage, error_code);
   }
 }
 
@@ -43,8 +49,11 @@ export class MethodNotAllowed extends HttpClientError {
 }
 
 export class Conflict extends HttpClientError {
-  constructor(customMessage: string = "Conflict") {
-    super(409, customMessage, "CONFLICT");
+  constructor(
+    customMessage: string = "Conflict",
+    error_code: string = "CONFLICT",
+  ) {
+    super(409, customMessage, error_code);
   }
 }
 
