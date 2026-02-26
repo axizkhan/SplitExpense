@@ -1,12 +1,15 @@
 import { Router } from "express";
+import { GroupRouter } from "./group.routes";
 
 export class AuthRoutes {
-  public AuthRouter: Router;
+  public authRouter: Router;
+  private groupRouter: GroupRouter;
   constructor() {
-    this.AuthRouter = Router();
+    this.authRouter = Router();
+    this.groupRouter = new GroupRouter();
     this.authPathInitializer();
   }
   authPathInitializer() {
-    this.AuthRouter;
+    this.authRouter.use("/group", this.groupRouter.groupRouter);
   }
 }
