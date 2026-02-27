@@ -2,14 +2,13 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const JournelSchema = new Schema({
-  user1_id: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-  },
-  user2_id: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-  },
+  users: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  ],
   groupId: { type: Schema.Types.ObjectId, ref: "Group" },
   entryArray: [
     {
@@ -17,7 +16,7 @@ const JournelSchema = new Schema({
       ref: "Entry",
     },
   ],
-  amount: { type: Number, required: true },
+
   updatedAt: { type: Date, default: Date.now },
   deletedAt: { type: Date, default: null },
 });

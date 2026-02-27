@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { GroupService } from "../service/group.service";
 import { InternalServerError } from "../error/httpServerError";
-import { BadRequest, NotFound } from "../error/httpClientError";
+import { BadRequest, NotFound, Unauthorized } from "../error/httpClientError";
 import { UserAuthServices } from "../service/userAuth.service";
 export class GroupController {
   private groupService: GroupService;
@@ -12,21 +12,24 @@ export class GroupController {
   }
 
   createGroup = async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.user;
-    const { name, description } = req.body;
+    if (req.user) {
+      const { id } = req.user;
+      const { name, description } = req.body;
 
-    const group = await this.groupService.createGroup(id, name, description);
-    if (!group) {
-      throw new InternalServerError();
+      const group = await this.groupService.createGroup(id, name, description);
+      if (!group) {
+        throw new InternalServerError();
+      }
+      const resObj = {
+        data: group,
+        statusCode: 201,
+        message: "GROUP_CREATED_SUCCESSFULLY",
+      };
+
+      req.resData = resObj;
+      next();
     }
-    const resObj = {
-      data: group,
-      statusCode: 201,
-      message: "GROUP_CREATED_SUCCESSFULLY",
-    };
-
-    req.resData = resObj;
-    next();
+    throw new Unauthorized();
   };
 
   addMemberInGroup = async (
@@ -34,38 +37,41 @@ export class GroupController {
     res: Response,
     next: NextFunction,
   ) => {
-    const { id } = req.user;
-    const { groupId } = req.params;
-    const { newMemberEmail } = req.body;
+    if (req.user) {
+      const { id } = req.user;
+      const { groupId } = req.params;
+      const { newMemberEmail } = req.body;
 
-    const group = await this.groupService.isUserExistInGroup(
-      id,
-      groupId as string,
-    );
+      const group = await this.groupService.isUserExistInGroup(
+        id,
+        groupId as string,
+      );
 
-    if (!group) {
-      throw new NotFound("Either group or user dont exist");
+      if (!group) {
+        throw new NotFound("Either group or user dont exist");
+      }
+      const newMember =
+        await this.userService.findUserLocalLogin(newMemberEmail);
+
+      if (!newMember) {
+        throw new NotFound("User Dont Exist To Add In Group");
+      }
+
+      const isUserAdd = await this.groupService.addUserToGroup(
+        group.toString(),
+        newMember._id.toString(),
+      );
+      if (isUserAdd) {
+        const resObject = {
+          data: "",
+          statusCode: 201,
+          message: "User SuccesFully add to group",
+        };
+        req.resData = resObject;
+        return next();
+      }
+      throw new BadRequest();
     }
-    const newMember = await this.userService.findUserLocalLogin(newMemberEmail);
-
-    if (!newMember) {
-      throw new NotFound("User Dont Exist To Add In Group");
-    }
-
-    const isUserAdd = await this.groupService.addUserToGroup(
-      group.toString(),
-      newMember._id.toString(),
-    );
-    if (isUserAdd) {
-      const resObject = {
-        data: "",
-        statusCode: 201,
-        message: "User SuccesFully add to group",
-      };
-      req.resData = resObject;
-      return next();
-    }
-
-    throw new BadRequest();
+    throw new Unauthorized();
   };
 }

@@ -18,7 +18,7 @@ export class ErrorHandler {
   ) {
     if (error instanceof HttpClientError) {
       res.status(error.httpCode);
-      res.json({
+      return res.json({
         success: false,
         data: [],
         code: error.error_code,

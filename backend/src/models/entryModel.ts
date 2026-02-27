@@ -15,7 +15,7 @@ const EntrySchema = new Schema({
   },
   deletedAt: {
     type: Date,
-    default: Date.now(),
+    default: null,
   },
 });
 

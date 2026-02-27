@@ -1,15 +1,21 @@
 import { Router } from "express";
 
 import { GroupController } from "../../controller/group.controller";
+import { ExpenseController } from "../../controller/expense.controller";
 
 export class ExpenseRouter {
-  public groupRouter: Router;
-  //   private ExpenseController: GroupController;
+  public expenseRouter: Router;
+  private expenseController: ExpenseController;
   constructor() {
-    this.groupRouter = Router();
-    // this.groupController = new GroupController();
+    this.expenseRouter = Router();
+    this.expenseController = new ExpenseController();
     this.RouteInitializer();
   }
 
-  private RouteInitializer() {}
+  private RouteInitializer() {
+    this.expenseRouter.post(
+      "/:groupId",
+      this.expenseController.addNewExpenseToGroup,
+    );
+  }
 }
