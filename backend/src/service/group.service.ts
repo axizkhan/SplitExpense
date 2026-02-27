@@ -58,4 +58,17 @@ export class GroupService {
       throw err;
     }
   }
+
+  async getAllGroup(userId: string) {
+    let result = await Group.find({ "members.memberId": { $eq: userId } });
+    return result;
+  }
+
+  async getGroup(groupId: string, userId: string) {
+    let group = await Group.find({
+      _id: groupId,
+      "members.memberId": userId,
+    }).populate("members.memberId");
+    return group;
+  }
 }

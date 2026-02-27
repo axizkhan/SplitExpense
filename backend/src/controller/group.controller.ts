@@ -3,6 +3,8 @@ import { GroupService } from "../service/group.service";
 import { InternalServerError } from "../error/httpServerError";
 import { BadRequest, NotFound, Unauthorized } from "../error/httpClientError";
 import { UserAuthServices } from "../service/userAuth.service";
+import { group } from "node:console";
+import { Group } from "../models/groupModel";
 export class GroupController {
   private groupService: GroupService;
   private userService: UserAuthServices;
@@ -72,6 +74,25 @@ export class GroupController {
       }
       throw new BadRequest();
     }
+    throw new Unauthorized();
+  };
+  getGroupDetails = async (req: Request, res: Response, next: NextFunction) => {
+    if (req.user) {
+      try {
+        const { groupId } = req.params;
+        let group = await this.groupService.getGroup(
+          groupId as string,
+          req.user.id,
+        );
+
+        console.log(group);
+        return res.send("successfull");
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
+    }
+
     throw new Unauthorized();
   };
 }

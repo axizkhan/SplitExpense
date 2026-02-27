@@ -14,5 +14,6 @@ export class GroupRouter {
   private RouteInitializer() {
     this.groupRouter.post("/", this.groupController.createGroup);
     this.groupRouter.put("/:groupId", this.groupController.addMemberInGroup);
+    this.groupRouter.get("/:groupId", this.groupController.getGroupDetails);
   }
 }
