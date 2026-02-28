@@ -28,4 +28,12 @@ export class EntryService {
 
     throw new InternalServerError();
   }
+
+  async allUserJournel(journelId: string, pageNumber: number) {
+    let limit = 10;
+    let result = await Journel.find({ _id: journelId })
+      .sort({ _id: -1 })
+      .limit(limit)
+      .skip(limit * (pageNumber - 1));
+  }
 }

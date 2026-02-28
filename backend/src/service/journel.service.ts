@@ -49,4 +49,37 @@ export class JournelServices {
       throw err;
     }
   }
+
+  async allUserJournel(journelId: string, pageNumber: number) {
+    try {
+      let limit = 10;
+      let result = await Journel.find({ _id: journelId }).populate({
+        path: "entryArray",
+        options: {
+          sort: { _id: -1 },
+          skip: 10 * (pageNumber - 1),
+          limit: 10,
+        },
+      });
+      const totalEnetryCount = await Journel.aggregate([
+        {
+          $match: { _id: new mongoose.Types.ObjectId(journelId) },
+        },
+        {
+          $project: {
+            _id: 0,
+            entryCount: { $size: "$entryArray" },
+          },
+        },
+      ]);
+
+      return {
+        journelData: result,
+        totalEnetryCount: totalEnetryCount[0].entryCount,
+      };
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
 }

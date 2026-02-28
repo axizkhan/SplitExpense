@@ -130,6 +130,7 @@ export class GroupController {
         };
 
         for (let memberbalance of memberBalanceData) {
+          // @ts-ignore
           let sanitizedMemberBalance: BalanceResponse = {
             _id: memberbalance._id,
             JournelId: memberbalance.journelId,
