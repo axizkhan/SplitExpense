@@ -65,4 +65,26 @@ export class ExpenseController {
     }
     throw new Unauthorized();
   };
+  getAllUserExpenses = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    if (req.user) {
+      const { groupId } = req.params;
+      let data = await this.expenseService.getAllUserExpense(
+        groupId as string,
+        req.user.id,
+      );
+
+      req.resData = {
+        data,
+        statusCode: 200,
+        message: "Data Found Successfully",
+      };
+
+      return next();
+    }
+    throw new Unauthorized();
+  };
 }

@@ -120,6 +120,7 @@ export class ExpenseService {
       let result = await Expense.find({ groupId, paidBy: userId }).sort({
         _id: -1,
       });
+      return result;
     } catch (err) {
       throw err;
     }

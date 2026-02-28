@@ -18,6 +18,10 @@ export class ExpenseRouter {
       this.expenseController.addNewExpenseToGroup,
     );
     this.expenseRouter.get(
+      "/user/:groupId",
+      this.expenseController.getAllUserExpenses,
+    );
+    this.expenseRouter.get(
       "/:groupId",
       this.expenseController.getAllExpensesOfGroup,
     );
