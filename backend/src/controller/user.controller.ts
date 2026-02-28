@@ -37,19 +37,4 @@ export class UserController {
     }
     throw new Unauthorized();
   };
-
-  getGroupDetails = async (req: Request, res: Response, next: NextFunction) => {
-    if (req.user) {
-      const { groupId } = req.params;
-      let group = await this.groupService.getGroup(
-        groupId as string,
-        req.user.id,
-      );
-
-      console.log(group);
-      return res.send("successfull");
-    }
-
-    throw new Unauthorized();
-  };
 }

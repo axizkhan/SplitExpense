@@ -7,7 +7,7 @@ export interface IUserBalance {
 
 export interface IBalance {
   groupId: Types.ObjectId;
-  journelId?: Types.ObjectId;
+  journelId: Types.ObjectId;
 
   balances: IUserBalance[];
 

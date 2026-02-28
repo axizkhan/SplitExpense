@@ -65,10 +65,13 @@ export class GroupService {
   }
 
   async getGroup(groupId: string, userId: string) {
-    let group = await Group.find({
+    let group = await Group.findOne({
       _id: groupId,
       "members.memberId": userId,
-    }).populate("members.memberId");
+    }).populate(
+      "members.memberId",
+      "email mobileNumber upiId _id name.firstName lastName",
+    );
     return group;
   }
 }

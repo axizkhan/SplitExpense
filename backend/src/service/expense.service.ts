@@ -28,8 +28,6 @@ export class ExpenseService {
       "members.memberId": userId,
     });
 
-    console.log(group, "GROUP**********************************");
-
     if (!group) {
       throw new BadRequest();
     }
@@ -45,8 +43,6 @@ export class ExpenseService {
     }
 
     const createdExpense = await Expense.create(expenseDocument);
-
-    console.log(createdExpense, "Expense****************************");
 
     let averageExpense = expense.amount / group.members.length;
     for (let member of group.members) {
@@ -76,10 +72,7 @@ export class ExpenseService {
             borowerId,
             newEntryId,
           );
-
-          console.log("*************JOURNEL DOT EXIST SO CREATED NEW ONE");
         }
-        console.log(journel, "********************JOURNEL");
 
         let balance = await this.balanceService.isBalanceExistThanUpdate(
           journel._id.toString(),
@@ -97,20 +90,11 @@ export class ExpenseService {
             averageExpense,
             journel._id.toString(),
           );
-
-          console.log(
-            "***********BALANCE DONT EXIST SO CREATE ONE****************",
-          );
         }
 
-        console.log(balance, "*************************BALANCE");
-
         member.amountOwed += averageExpense;
-
-        console.log("BALANCE ADD*************** to borowers");
       } else {
         member.amountToBeRecieved += averageExpense;
-        console.log("BALANCE ADD*************** to lender");
       }
     }
 

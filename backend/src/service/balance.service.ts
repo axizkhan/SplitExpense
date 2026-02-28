@@ -65,4 +65,21 @@ export class BalanceService {
       throw err;
     }
   }
+
+  async getAllBalance(members: any, groupId: string, userId: string) {
+    let balanceArray = await BalanceModel.find({
+      balances: {
+        $all: [
+          { $elemMatch: { userId } },
+          { $elemMatch: { userId: { $in: members } } },
+        ],
+      },
+    }).populate({
+      path: "balances.userId",
+
+      select: "name.firstName name.lastName mobileNumber upiId _id email",
+    });
+
+    return balanceArray;
+  }
 }

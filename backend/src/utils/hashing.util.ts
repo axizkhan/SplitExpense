@@ -4,11 +4,9 @@ export class HashingUtil {
   private saltRound = Number(process.env.SALT_ROUND);
   async hashPassword(password: string) {
     try {
-      console.log(password, this.saltRound);
       const hashedPassword = await bcrypt.hash(password, this.saltRound);
       return hashedPassword;
     } catch (error) {
-      // console.log(error);
       throw error;
     }
   }

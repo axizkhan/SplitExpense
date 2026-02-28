@@ -27,8 +27,6 @@ export class ExpenseController {
         expense.description = req.body.description;
       }
 
-      console.log("call for ADD new expense");
-
       let data = await this.expenseService.addExpense(
         expense,
         groupId as string,
@@ -43,6 +41,17 @@ export class ExpenseController {
       return next();
     }
 
+    throw new Unauthorized();
+  };
+
+  getAllExpensesOfGroup = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    if (req.user) {
+      const { groupId } = req.params;
+    }
     throw new Unauthorized();
   };
 }
