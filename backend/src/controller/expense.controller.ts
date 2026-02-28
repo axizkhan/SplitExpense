@@ -51,6 +51,17 @@ export class ExpenseController {
   ) => {
     if (req.user) {
       const { groupId } = req.params;
+      let allGroupExpenses = await this.expenseService.getAllExpense(
+        groupId as string,
+      );
+
+      req.resData = {
+        statusCode: 200,
+        message: "Data Found Successfully",
+        data: allGroupExpenses,
+      };
+
+      return next();
     }
     throw new Unauthorized();
   };

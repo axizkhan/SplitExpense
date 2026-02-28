@@ -106,4 +106,22 @@ export class ExpenseService {
 
     throw new InternalServerError();
   }
+  async getAllExpense(groupId: string) {
+    try {
+      let result = await Expense.find({ groupId }).sort({ _id: -1 });
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getAllUserExpense(groupId: string, userId: string) {
+    try {
+      let result = await Expense.find({ groupId, paidBy: userId }).sort({
+        _id: -1,
+      });
+    } catch (err) {
+      throw err;
+    }
+  }
 }
