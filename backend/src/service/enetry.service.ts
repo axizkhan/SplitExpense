@@ -29,11 +29,16 @@ export class EntryService {
     throw new InternalServerError();
   }
 
-  async allUserJournel(journelId: string, pageNumber: number) {
-    let limit = 10;
-    let result = await Journel.find({ _id: journelId })
-      .sort({ _id: -1 })
-      .limit(limit)
-      .skip(limit * (pageNumber - 1));
+  async updateEntry(expenseId: string, difference: number, member: number) {
+    try {
+      let averageExpense = difference / member;
+      let result = await Entry.updateMany(
+        { expenseId },
+        { $in: { amount: averageExpense } },
+      );
+      return result;
+    } catch (err) {
+      throw err;
+    }
   }
 }

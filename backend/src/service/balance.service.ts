@@ -82,4 +82,23 @@ export class BalanceService {
 
     return balanceArray;
   }
+
+  async updateUserBalance(
+    groupId: string,
+    userId: string,
+    difference: number,
+    member: number,
+  ) {
+    try {
+      let averageExpense = difference / member;
+      let result = await BalanceModel.updateMany(
+        { groupId, "balances.userId": userId },
+        { $inc: { "balances.$.receivedAmount": averageExpense } },
+      );
+
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
 }

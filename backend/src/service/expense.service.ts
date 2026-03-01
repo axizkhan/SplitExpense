@@ -125,4 +125,34 @@ export class ExpenseService {
       throw err;
     }
   }
+
+  async updateUserExpense(expenseId: string, difference: number) {
+    try {
+      let result = await Expense.findOneAndUpdate(
+        { _id: expenseId },
+        { $inc: { amount: difference } },
+      );
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getExpense(expenseId: string) {
+    try {
+      let result = await Expense.findOne({ _id: expenseId });
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async deleteExpense(expenseId: string) {
+    try {
+      let result = await Expense.findByIdAndDelete(expenseId);
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
 }

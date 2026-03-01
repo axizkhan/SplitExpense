@@ -74,4 +74,61 @@ export class GroupService {
     );
     return group;
   }
+
+  async userExpenseEdit(
+    groupId: string,
+    userId: string,
+    amount: number,
+    member: number,
+  ) {
+    try {
+      let averageExpense = amount / member;
+      let userExpense = amount * (member - 1);
+      let result = await Group.updateOne(
+        { _id: groupId },
+        {
+          $inc: {
+            "members.$[currentUser].amountToBeRecieved": userExpense,
+            "members.$[otherUsers].amountOwed": averageExpense,
+          },
+        },
+        {
+          arrayFilters: [
+            { "currentUser.memberId": new mongoose.Types.ObjectId(userId) },
+            {
+              "otherUsers.memberId": {
+                $ne: new mongoose.Types.ObjectId(userId),
+              },
+            },
+          ],
+        },
+      );
+
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async getMemberCount(groupId: string) {
+    try {
+      const result = await Group.aggregate([
+        {
+          $match: {
+            _id: new mongoose.Types.ObjectId(groupId),
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            memberCount: { $size: "$members" },
+          },
+        },
+      ]);
+
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
 }

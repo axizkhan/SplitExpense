@@ -6,6 +6,7 @@ const EntrySchema = new Schema({
   borowerId: { type: Schema.Types.ObjectId, ref: "User" },
   expenseId: { type: Schema.Types.ObjectId, ref: "Expense" },
   groupId: { type: Schema.Types.ObjectId, ref: "Group" },
+  type: { type: String, enum: ["expense", "payment"] },
   amount: {
     type: Number,
   },

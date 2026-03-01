@@ -25,5 +25,11 @@ export class ExpenseRouter {
       "/:groupId",
       this.expenseController.getAllExpensesOfGroup,
     );
+
+    this.expenseRouter.put("/:expenseId", this.expenseController.editExpense);
+    this.expenseRouter.delete(
+      "/:expenseId",
+      this.expenseController.deleteExpense,
+    );
   }
 }
