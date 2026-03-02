@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { GroupService } from "../service/group.service";
-import { userInfo } from "node:os";
+
 import { Unauthorized } from "../error/httpClientError";
 
 export class UserController {
