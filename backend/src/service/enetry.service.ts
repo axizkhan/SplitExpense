@@ -6,12 +6,13 @@ import { InternalServerError } from "../error/httpServerError";
 export class EntryService {
   constructor() {}
 
-  createEntry(
+  async createEntry(
     lenderId: string,
     borowerId: string,
     groupId: string,
     amount: number,
     expenseId: string,
+    type: string = "expense",
   ) {
     const entryDocument: IEntry = {
       lenderId: new mongoose.Types.ObjectId(lenderId),
@@ -19,9 +20,10 @@ export class EntryService {
       groupId: new mongoose.Types.ObjectId(groupId),
       amount,
       expenseId: new mongoose.Types.ObjectId(expenseId),
+      type,
     };
 
-    const newEntry = Entry.create(entryDocument);
+    const newEntry = await Entry.create(entryDocument);
     if (newEntry) {
       return newEntry;
     }
@@ -37,6 +39,32 @@ export class EntryService {
         { $in: { amount: averageExpense } },
       );
       return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async createPaymentEntry(
+    lenderId: string,
+    borowerId: string,
+    groupId: string,
+    amount: number,
+    paymentId: string,
+    type: string = "payment",
+  ) {
+    try {
+      const entryDocument: IEntry = {
+        lenderId: new mongoose.Types.ObjectId(lenderId),
+        borowerId: new mongoose.Types.ObjectId(borowerId),
+        groupId: new mongoose.Types.ObjectId(groupId),
+        amount,
+        paymentId: new mongoose.Types.ObjectId(paymentId),
+        type,
+      };
+
+      const newEntry = await Entry.create(entryDocument);
+
+      return newEntry;
     } catch (err) {
       throw err;
     }

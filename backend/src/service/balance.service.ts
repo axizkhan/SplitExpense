@@ -101,4 +101,26 @@ export class BalanceService {
       throw err;
     }
   }
+
+  async updateBalanceAgntsPayemnt(
+    groupId: string,
+    paidById: string,
+    paidToId: string,
+    amount: number,
+  ) {
+    try {
+      let result = await BalanceModel.findOneAndUpdate(
+        {
+          groupId,
+          "balances.userId": { $all: [paidById, paidToId] },
+        },
+        { $inc: { "balances.$[paidby].receivedAmount": amount } },
+        { arrayFilters: [{ "paidby.userId": paidById }] },
+      );
+
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
 }
