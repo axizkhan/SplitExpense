@@ -4,8 +4,10 @@ const { Schema } = mongoose;
 const EntrySchema = new Schema({
   lenderId: { type: Schema.Types.ObjectId, ref: "User" },
   borowerId: { type: Schema.Types.ObjectId, ref: "User" },
-  expenseId: { type: Schema.Types.ObjectId, ref: "Expense" },
+  expenseId: { type: Schema.Types.ObjectId, ref: "Expense", default: null },
+  paymentId: { type: Schema.Types.ObjectId, ref: "Payment", default: null },
   groupId: { type: Schema.Types.ObjectId, ref: "Group" },
+  type: { type: String, enum: ["expense", "payment"] },
   amount: {
     type: Number,
   },
@@ -15,8 +17,8 @@ const EntrySchema = new Schema({
   },
   deletedAt: {
     type: Date,
-    default: Date.now(),
+    default: null,
   },
 });
 
-const Entry = mongoose.model("Entry", EntrySchema);
+export const Entry = mongoose.model("Entry", EntrySchema);
