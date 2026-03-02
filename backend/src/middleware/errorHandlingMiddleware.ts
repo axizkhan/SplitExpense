@@ -2,7 +2,7 @@ import type { Response, Request, NextFunction } from "express";
 import { HttpClientError } from "../error/httpClientError";
 import { HttpServerError } from "../error/httpServerError";
 import path from "path";
-import { writeFile } from "fs/promises";
+import { writeFile, writeFileSync } from "fs";
 
 export class ErrorHandler {
   private errorLogPath: string;
@@ -16,9 +16,10 @@ export class ErrorHandler {
     res: Response,
     next: NextFunction,
   ) {
+    console.log(error);
     if (error instanceof HttpClientError) {
       res.status(error.httpCode);
-      res.json({
+      return res.json({
         success: false,
         data: [],
         code: error.error_code,
@@ -56,6 +57,15 @@ export class ErrorHandler {
         });
       }
       errorLog += "*".repeat(80) + "\r\n";
+
+      // writeFile(this.errorLogPath, errorLog, (err) => {
+      //   if (err) {
+      //     writeFileSync(
+      //       this.errorLogPath,
+      //       "Unexpected Error " + "@".repeat(40) + JSON.stringify(err, null, 2),
+      //     );
+      //   }
+      // });
     }
   }
 }

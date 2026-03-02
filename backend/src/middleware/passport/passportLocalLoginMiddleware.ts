@@ -17,7 +17,6 @@ export class PassportStrategy {
         { usernameField: "email", passwordField: "password" },
         async (email, password, done) => {
           try {
-            console.log("passport inner fucntion got request");
             const user = await this.userService.findUserLocalLogin(email);
             if (!user) {
               return done(null, false, {
