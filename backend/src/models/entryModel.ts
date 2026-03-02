@@ -6,6 +6,7 @@ const EntrySchema = new Schema({
   borowerId: { type: Schema.Types.ObjectId, ref: "User" },
   expenseId: { type: Schema.Types.ObjectId, ref: "Expense" },
   groupId: { type: Schema.Types.ObjectId, ref: "Group" },
+  type: { type: String, enum: ["expense", "payment"] },
   amount: {
     type: Number,
   },
@@ -15,8 +16,8 @@ const EntrySchema = new Schema({
   },
   deletedAt: {
     type: Date,
-    default: Date.now(),
+    default: null,
   },
 });
 
-const Entry = mongoose.model("Entry", EntrySchema);
+export const Entry = mongoose.model("Entry", EntrySchema);
