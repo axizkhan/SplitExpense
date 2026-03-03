@@ -7,11 +7,10 @@ import {
   Portal,
   VStack,
 } from "@chakra-ui/react";
-import { useState } from "react";
+
 import { Button } from "@chakra-ui/react";
 import { HiOutlinePlus } from "react-icons/hi";
 function CreateGroupDialog() {
-  const [open, setOpen] = useState(false);
   return (
     <Dialog.Root
       size={{ mdDown: "lg", md: "md" }}
