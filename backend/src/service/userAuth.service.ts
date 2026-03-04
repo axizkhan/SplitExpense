@@ -27,7 +27,7 @@ export class UserAuthServices {
     try {
       let newUser = await UserModel.create(userDocument);
 
-      return "User Login Successfully";
+      return newUser;
     } catch (err) {
       console.log(err);
       throw new Conflict("Email Already Exist", "USER_EXIST");

@@ -44,14 +44,24 @@ export function useEditExpense() {
   return useMutation({
     mutationFn: ({
       expenseId,
-      payload,
+      newExpenseAmount,
     }: {
       expenseId: string;
-      payload: Partial<ExpensePayload>;
-    }) => expenseRepository.editExpense(expenseId, payload),
+      newExpenseAmount: number;
+    }) => expenseRepository.editExpense(expenseId, newExpenseAmount),
     onSuccess: () => {
+      // Invalidate all related queries
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.EXPENSES],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.USER_EXPENSES],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GROUP_DETAILS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.JOURNAL],
       });
     },
   });
@@ -63,8 +73,18 @@ export function useDeleteExpense() {
   return useMutation({
     mutationFn: expenseRepository.deleteExpense,
     onSuccess: () => {
+      // Invalidate all related queries
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.EXPENSES],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.USER_EXPENSES],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GROUP_DETAILS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.JOURNAL],
       });
     },
   });

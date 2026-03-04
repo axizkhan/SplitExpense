@@ -6,6 +6,7 @@ import { RiArrowRightLine } from "react-icons/ri";
 import { useState } from "react";
 import { useSignup } from "../../src/features/auth/hooks";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { useToast } from "../../src/shared/toastService";
 import WalletLogo from "../../logo/WalletLogo";
 
 function Signup() {
@@ -20,6 +21,7 @@ function Signup() {
 
   const { mutate, isPending } = useSignup();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -30,7 +32,13 @@ function Signup() {
     e.preventDefault();
     mutate(formData as any, {
       onSuccess: () => {
+        toast.success("Signup Successful", "Account created successfully!");
         navigate("/dashboard");
+      },
+      onError: (error: any) => {
+        const errorMessage =
+          error?.response?.data?.message || "Signup failed. Please try again.";
+        toast.error("Signup Failed", errorMessage);
       },
     });
   };

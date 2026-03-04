@@ -182,19 +182,19 @@ export class ExpenseController {
         if (expense) {
           updatedEntery = await this.entryService.updateEntry(
             expenseId as string,
-            expenseAmount,
+            -expenseAmount,
             groupMember[0].memberCount,
           );
           updatedBalance = await this.balanceService.updateUserBalance(
             groupId as string,
             req.user.id,
-            expenseAmount,
+            -expenseAmount,
             groupMember[0].memberCount,
           );
           updatedGroup = await this.groupService.userExpenseEdit(
             groupId as string,
             req.user.id,
-            expenseAmount,
+            -expenseAmount,
             groupMember[0].memberCount,
           );
 

@@ -13,6 +13,14 @@ export class JournelRouter {
 
   private RouteInitializer() {
     this.journelRouter.get(
+      "/group/:groupId/:memberId/:pageNumber",
+      this.journelController.getUserToUserJournalEntries,
+    );
+    this.journelRouter.get(
+      "/group/:groupId/:pageNumber",
+      this.journelController.getGroupJournalEntries,
+    );
+    this.journelRouter.get(
       "/:journelId/:pageNumber",
       this.journelController.getJournelEntries,
     );

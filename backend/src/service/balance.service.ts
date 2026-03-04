@@ -68,6 +68,7 @@ export class BalanceService {
 
   async getAllBalance(members: any, groupId: string, userId: string) {
     let balanceArray = await BalanceModel.find({
+      groupId,
       balances: {
         $all: [
           { $elemMatch: { userId } },
@@ -76,7 +77,6 @@ export class BalanceService {
       },
     }).populate({
       path: "balances.userId",
-
       select: "name.firstName name.lastName mobileNumber upiId _id email",
     });
 
@@ -91,9 +91,21 @@ export class BalanceService {
   ) {
     try {
       let averageExpense = difference / member;
-      let result = await BalanceModel.updateMany(
-        { groupId, "balances.userId": userId },
-        { $inc: { "balances.$.receivedAmount": averageExpense } },
+      const userObjectId = new mongoose.Types.ObjectId(userId);
+
+      // Update creator's balance entries (increase receivedAmount)
+      await BalanceModel.updateMany(
+        { groupId, "balances.userId": userObjectId },
+        { $inc: { "balances.$[elem].receivedAmount": averageExpense } },
+        { arrayFilters: [{ "elem.userId": userObjectId }] },
+      );
+
+      // Update all other members' balance entries (decrease receivedAmount)
+      // IMPORTANT: Must also check for creator's userId in the document to avoid updating unrelated transactions
+      const result = await BalanceModel.updateMany(
+        { groupId, "balances.userId": userObjectId },
+        { $inc: { "balances.$[elem].receivedAmount": -averageExpense } },
+        { arrayFilters: [{ "elem.userId": { $ne: userObjectId } }] },
       );
 
       return result;

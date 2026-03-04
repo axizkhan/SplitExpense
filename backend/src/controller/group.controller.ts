@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
 import { GroupService } from "../service/group.service";
 import { InternalServerError } from "../error/httpServerError";
 import { BadRequest, NotFound, Unauthorized } from "../error/httpClientError";
@@ -84,93 +85,143 @@ export class GroupController {
     throw new Unauthorized();
   };
   getGroupDetails = async (req: Request, res: Response, next: NextFunction) => {
-    if (req.user) {
-      try {
-        const { groupId } = req.params;
-        let group = await this.groupService.getGroup(
+    try {
+      if (!req.user) {
+        throw new Unauthorized();
+      }
+
+      const { groupId } = req.params;
+      const userId = req.user.id;
+
+      const group = await this.groupService.getGroup(groupId as string, userId);
+
+      if (!group) {
+        req.resData = {
+          statusCode: 404,
+          message: "Group not found",
+          data: null,
+        };
+        return next();
+      }
+
+      const sanitizeData: GroupSummaryResponse = {
+        userData: {} as any,
+        balances: [],
+        group: {} as any,
+      };
+
+      const memberIds: string[] = [];
+      const memberDetailsMap: any = {};
+
+      // Extract member data and store member details for later
+      for (const member of group.members || []) {
+        const memberId = member.memberId._id.toString();
+
+        if (memberId === userId) {
+          sanitizeData.userData = {
+            amountOwed: member.amountOwed,
+            amountToBeRecieved: member.amountToBeRecieved,
+          };
+        } else {
+          memberIds.push(memberId);
+          // Store member details for members without balances
+          memberDetailsMap[memberId] = {
+            name: {
+              firstName: member.memberId.name?.firstName || "",
+              lastName: member.memberId.name?.lastName || "",
+            },
+            _id: member.memberId._id,
+            mobileNumber: member.memberId.mobileNumber,
+            upiId: member.memberId.upiId,
+          };
+        }
+      }
+
+      // Fetch balances
+      let memberBalanceData: any[] = [];
+
+      if (memberIds.length) {
+        const balances = await this.balanceService.getAllBalance(
+          memberIds,
           groupId as string,
-          req.user.id,
+          userId,
         );
 
-        let sanitizeData: GroupSummaryResponse = {
-          userData: "",
-          balances: [],
-          group: "",
-        };
+        memberBalanceData = balances || [];
+      }
 
-        let membersIdArray: Array<string> = [];
-        if (group?.members && req.user.id !== undefined) {
-          for (let member of group.members) {
-            let memberIdString = member.memberId._id.toString();
-            if (req.user?.id !== memberIdString) {
-              membersIdArray.push(memberIdString);
-            } else {
-              sanitizeData.userData = {
-                amountOwed: member.amountOwed,
-                amountToBeRecieved: member.amountToBeRecieved,
-              };
-            }
+      // Group summary
+      sanitizeData.group = {
+        groupName: group.name,
+        description: group.description,
+        groupId: group._id,
+        totalExpense: group.totalAmount,
+      };
+
+      // Track which members have been processed
+      const processedMemberIds = new Set<string>();
+
+      // Process balances
+      for (const memberBalance of memberBalanceData) {
+        const sanitizedMemberBalance: BalanceResponse = {
+          _id: memberBalance._id,
+          JournelId: memberBalance.journelId,
+          groupId: memberBalance.groupId,
+        } as BalanceResponse;
+
+        for (const balance of memberBalance.balances) {
+          const balanceUserId = balance.userId._id.toString();
+
+          if (balanceUserId === userId) {
+            sanitizedMemberBalance.userAmount = balance.receivedAmount;
+            sanitizedMemberBalance.userId = userId;
+          } else {
+            sanitizedMemberBalance.memberAmount = balance.receivedAmount;
+            processedMemberIds.add(balanceUserId);
+
+            sanitizedMemberBalance.memberdetails = {
+              name: {
+                firstName: balance.userId.name?.firstName || "",
+                lastName: balance.userId.name?.lastName || "",
+              },
+              _id: balance.userId._id,
+              mobileNumber: balance.userId.mobileNumber,
+              upiId: balance.userId.upiId,
+            };
           }
         }
 
-        let memberBalanceData: any = null;
-        if (membersIdArray.length) {
-          memberBalanceData = await this.balanceService.getAllBalance(
-            membersIdArray,
-            groupId as string,
-            req.user.id,
-          );
-        }
+        sanitizeData.balances.push(sanitizedMemberBalance);
+      }
 
-        sanitizeData.group = {
-          groupName: group?.name,
-          description: group?.description,
-          groupId: group?._id,
-          totalExpense: group?.totalAmount,
-        };
+      // Add members without balances (members who haven't been involved in expenses)
+      for (const memberId of memberIds) {
+        if (!processedMemberIds.has(memberId) && memberDetailsMap[memberId]) {
+          const memberDetail = memberDetailsMap[memberId];
+          const sanitizedMemberBalance: BalanceResponse = {
+            _id: new mongoose.Types.ObjectId(),
+            JournelId: new mongoose.Types.ObjectId(),
+            groupId: groupId,
+            memberAmount: 0,
+            userAmount: 0,
+            userId: userId,
+            memberdetails: memberDetail,
+          } as BalanceResponse;
 
-        for (let memberbalance of memberBalanceData) {
-          // @ts-ignore
-          let sanitizedMemberBalance: BalanceResponse = {
-            _id: memberbalance._id,
-            JournelId: memberbalance.journelId,
-            groupId: memberbalance.groupId,
-          };
-          for (let i = 0; i < memberbalance.balances.length; i++) {
-            let balance = memberbalance.balances[i];
-
-            if (balance.userId._id.toString() === req.user?.id) {
-              sanitizedMemberBalance.userAmount = balance.receivedAmount;
-              sanitizedMemberBalance.userId = req.user?.id;
-            } else {
-              sanitizedMemberBalance.memberAmount = balance.receivedAmount;
-              sanitizedMemberBalance.memberdetails = {
-                name: {
-                  firstName: balance.userId.name.firstName,
-                  lastName: balance.userId.name.lastName,
-                },
-                _id: balance.userId._id,
-                mobileNumber: balance.userId.mobileNumber,
-                upiId: balance.userId.upiId,
-              };
-            }
-          }
           sanitizeData.balances.push(sanitizedMemberBalance);
         }
-
-        req.resData = {
-          statusCode: 200,
-          message: "Data found",
-          data: sanitizeData,
-        };
-
-        return next();
-      } catch (err) {
-        console.log(err);
-        throw err;
       }
-    }
 
-    throw new Unauthorized();
+      req.resData = {
+        statusCode: 200,
+        message: "Data found",
+        data: sanitizeData,
+      };
+
+      return next();
+    } catch (error) {
+      console.log(error);
+      return next(error);
+    }
   };
 }

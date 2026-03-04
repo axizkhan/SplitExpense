@@ -12,28 +12,61 @@ import {
   Stack,
   Skeleton,
 } from "@chakra-ui/react";
-import { LuIndianRupee, LuDot } from "react-icons/lu";
 import { MdNotificationsActive } from "react-icons/md";
-import { RiMoneyRupeeCircleLine } from "react-icons/ri";
 import { FaUser } from "react-icons/fa";
-import { useJournalEntries } from "../../src/features/groups/hooks-journal";
+import { useUserToUserJournalEntries } from "../../src/features/groups/hooks-journal";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../src/core/state/auth";
 import { useState } from "react";
+import { JournalEntryCard } from "../../src/components/JournalEntryCard";
+import PaymentDialog from "./PaymentDialog";
 
 function Journel() {
-  const { groupId } = useParams<{ groupId: string }>();
+  const { groupId, memberId } = useParams<{
+    groupId: string;
+    memberId: string;
+  }>();
   const { user } = useAuth();
   const [pageNumber, setPageNumber] = useState(1);
-  const { data: journalData, isLoading } = useJournalEntries(
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const { data: journalData, isLoading } = useUserToUserJournalEntries(
     groupId || "",
+    memberId || "",
     pageNumber,
   );
 
   const userName = user?.firstName || "User";
 
+  // Extract member name and calculate balance from journal data
+  const memberName =
+    journalData?.journelData?.[0]?.memberDetails?.name?.firstName || "Member";
+  const memberLastName =
+    journalData?.journelData?.[0]?.memberDetails?.name?.lastName || "";
+  const fullMemberName = `${memberName} ${memberLastName}`.trim();
+
+  // Calculate balance: positive if member owes, negative if we owe
+  const balance =
+    journalData?.journelData?.reduce((sum: number, journal: any) => {
+      return (
+        sum +
+        (journal.entryArray?.reduce((entrySum: number, entry: any) => {
+          if (entry.type === "EXPENSE") {
+            return (
+              entrySum +
+              (entry.lenderId === memberId ? -entry.amount : entry.amount)
+            );
+          }
+          return entrySum;
+        }, 0) || 0)
+      );
+    }, 0) || 0;
+
   return (
-    <Box p={{ base: 4, md: 8 }}>
+    <Box
+      px={{ base: 4, md: 6, lg: 8 }}
+      py={{ base: 6, md: 8 }}
+      minH="100vh"
+      bg="#0f172a">
       {/* header*/}
       <Stack
         direction={{ base: "column", lg: "row" }}
@@ -45,30 +78,51 @@ function Journel() {
         <HStack
           align="center"
           gap={4}>
-          <Icon
-            boxSize={10}
-            color="teal.500">
-            <FaUser />
-          </Icon>
+          <Box
+            p={3}
+            bg="linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.1) 100%)"
+            borderRadius="2xl"
+            border="1px solid"
+            borderColor="rgba(34, 197, 94, 0.3)">
+            <Icon
+              boxSize={10}
+              color="green.400">
+              <FaUser />
+            </Icon>
+          </Box>
           <VStack
             align="start"
             gap={0}>
-            <Heading size="lg">{userName}</Heading>
+            <Heading
+              size="lg"
+              color="slate.100"
+              fontWeight="800">
+              {userName}
+            </Heading>
             <Text
               fontSize="sm"
-              color="gray.500">
-              Member of this group
+              color="slate.400">
+              Member transactions
             </Text>
           </VStack>
         </HStack>
 
         {/* Settlement Card */}
-        <Card.Root w={{ base: "full", md: "350px" }}>
+        <Card.Root
+          w={{ base: "full", md: "auto" }}
+          bg="linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%)"
+          borderColor="rgba(34, 197, 94, 0.3)"
+          border="1px solid"
+          px={{ mdDown: 2, md: 8 }}
+          py={{ mdDown: 1, md: 4 }}>
           <Card.Body>
             <Text
-              fontSize="sm"
-              color="gray.500">
-              SETTLEMENT SUMMARY
+              fontSize="xs"
+              fontWeight="700"
+              color="slate.400"
+              textTransform="uppercase"
+              letterSpacing="1px">
+              Settlement Summary
             </Text>
 
             <Heading
@@ -77,14 +131,25 @@ function Journel() {
               alignItems="center"
               gap={1}
               mt={2}
-              color="green.500">
-              Transactions record
+              color="green.300"
+              fontWeight="700">
+              Transactions
             </Heading>
           </Card.Body>
 
           <Card.Footer justifyContent="space-between">
-            <Badge colorPalette="green">
-              Entries <LuIndianRupee /> {journalData?.entries?.length || 0}
+            <Badge
+              colorPalette="green"
+              fontSize="sm"
+              px={3}
+              py={2}
+              borderRadius="lg"
+              fontWeight="700">
+              {journalData?.journelData?.reduce(
+                (sum: number, j: any) => sum + (j.entryArray?.length || 0),
+                0,
+              ) || 0}{" "}
+              entries
             </Badge>
           </Card.Footer>
         </Card.Root>
@@ -100,7 +165,22 @@ function Journel() {
           align="start"
           gap={6}
           gridColumn={{ lg: "span 2" }}>
-          <Heading size="md">Transaction History</Heading>
+          <VStack
+            align="start"
+            w="full"
+            gap={2}>
+            <Heading
+              size="md"
+              color="slate.100"
+              fontWeight="700">
+              Transaction History
+            </Heading>
+            <Box
+              h="1px"
+              w="20"
+              bg="linear-gradient(90deg, #22c55e, transparent)"
+            />
+          </VStack>
 
           {isLoading ? (
             <VStack
@@ -115,70 +195,50 @@ function Journel() {
                 />
               ))}
             </VStack>
-          ) : journalData?.entries && journalData.entries.length > 0 ? (
+          ) : journalData?.journelData && journalData.journelData.length > 0 ? (
             <>
-              {journalData.entries.map((entry: any, idx: number) => (
-                <Card.Root
-                  key={idx}
-                  w="full">
-                  <Card.Body>
-                    <HStack
-                      justify="space-between"
-                      align="start">
-                      <HStack
-                        align="start"
-                        gap={4}>
-                        <Icon
-                          boxSize={8}
-                          color="green.500">
-                          <RiMoneyRupeeCircleLine />
-                        </Icon>
-
-                        <VStack
-                          align="start"
-                          gap={1}>
-                          <Heading size="sm">{entry.description}</Heading>
-                          <Text
-                            fontSize="sm"
-                            color="gray.500">
-                            {new Date(entry.createdAt).toLocaleDateString()}{" "}
-                            <LuDot /> {entry.user?.firstName || "User"}
-                          </Text>
-                        </VStack>
-                      </HStack>
-
-                      <VStack
-                        align="end"
-                        gap={1}>
-                        <Heading
-                          size="sm"
-                          color="green.500">
-                          <LuIndianRupee /> {entry.amount}
-                        </Heading>
-                        <Text
-                          fontSize="xs"
-                          color="green.500">
-                          {entry.type.toUpperCase()}
-                        </Text>
-                      </VStack>
-                    </HStack>
-                  </Card.Body>
-                </Card.Root>
-              ))}
-
-              {journalData.totalPages && journalData.totalPages > 1 && (
-                <Button
-                  variant="outline"
-                  alignSelf="center"
-                  onClick={() => setPageNumber(pageNumber + 1)}>
-                  View More Journal
-                </Button>
+              {journalData.journelData.flatMap((journal: any) =>
+                journal.entryArray?.map((entry: any, idx: number) => (
+                  <JournalEntryCard
+                    key={`${journal._id}-${idx}`}
+                    entry={entry}
+                    journalId={journal._id}
+                    idx={idx}
+                  />
+                )),
               )}
+
+              {journalData.totalEntryCount &&
+                journalData.totalEntryCount > 10 && (
+                  <Button
+                    w="full"
+                    variant="outline"
+                    colorScheme="green"
+                    borderColor="green.500"
+                    color="green.400"
+                    _hover={{
+                      bg: "rgba(34, 197, 94, 0.1)",
+                      borderColor: "green.400",
+                    }}
+                    onClick={() => setPageNumber(pageNumber + 1)}>
+                    Load More Transactions
+                  </Button>
+                )}
             </>
           ) : (
-            <Card.Root w="full">
-              <Card.Body>
-                <Text color="gray.500">No transactions yet</Text>
+            <Card.Root
+              w="full"
+              bg="linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.7) 100%)"
+              borderColor="slate.700"
+              border="1px dashed">
+              <Card.Body
+                textAlign="center"
+                py={8}>
+                <Text
+                  color="slate.400"
+                  fontSize="lg">
+                  No transactions yet
+                </Text>
               </Card.Body>
             </Card.Root>
           )}
@@ -188,18 +248,56 @@ function Journel() {
         <VStack
           align="stretch"
           gap={4}
-          p={4}
-          bg="gray.950"
-          borderRadius="xl"
-          shadow="sm">
-          <Heading size="md">Quick Actions</Heading>
+          p={6}
+          bg="linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)"
+          borderRadius="2xl"
+          border="1px solid"
+          borderColor="slate.700"
+          boxShadow="0 4px 12px rgba(0, 0, 0, 0.3)">
+          <Heading
+            size="md"
+            color="slate.100"
+            fontWeight="700">
+            Quick Actions
+          </Heading>
 
           <Button
             variant="outline"
-            colorScheme="teal">
+            colorScheme="green"
+            borderColor="green.500"
+            color="green.400"
+            _hover={{
+              bg: "rgba(34, 197, 94, 0.1)",
+              borderColor: "green.400",
+            }}
+            onClick={() => setIsPaymentOpen(true)}>
+            Make Payment
+          </Button>
+
+          <Button
+            variant="outline"
+            colorScheme="green"
+            borderColor="green.500"
+            color="green.400"
+            _hover={{
+              bg: "rgba(34, 197, 94, 0.1)",
+              borderColor: "green.400",
+            }}>
             <MdNotificationsActive />
             Notify Member
           </Button>
+
+          {/* Payment Dialog */}
+          {memberId && (
+            <PaymentDialog
+              memberId={memberId}
+              memberName={fullMemberName}
+              groupId={groupId || ""}
+              balance={Math.abs(balance)}
+              isOpen={isPaymentOpen}
+              onOpenChange={setIsPaymentOpen}
+            />
+          )}
         </VStack>
       </SimpleGrid>
     </Box>

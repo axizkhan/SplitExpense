@@ -29,4 +29,25 @@ export const journalRepository = {
     );
     return response.data.data;
   },
+
+  async getGroupJournalEntries(
+    groupId: string,
+    pageNumber: number = 1,
+  ): Promise<JournalResponse> {
+    const response = await httpClient.get(
+      `/api/auth/journel/group/${groupId}/${pageNumber}`,
+    );
+    return response.data.data;
+  },
+
+  async getUserToUserJournalEntries(
+    groupId: string,
+    memberId: string,
+    pageNumber: number = 1,
+  ): Promise<JournalResponse> {
+    const response = await httpClient.get(
+      `/api/auth/journel/group/${groupId}/${memberId}/${pageNumber}`,
+    );
+    return response.data.data;
+  },
 };

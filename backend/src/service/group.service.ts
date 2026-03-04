@@ -83,7 +83,7 @@ export class GroupService {
   ) {
     try {
       let averageExpense = amount / member;
-      let userExpense = amount * (member - 1);
+      let userExpense = averageExpense * (member - 1);
       let result = await Group.updateOne(
         { _id: groupId },
         {

@@ -43,6 +43,10 @@ export function useAddMember() {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GROUP_DETAILS, variables.groupId],
       });
+      // Also refetch to ensure immediate update
+      queryClient.refetchQueries({
+        queryKey: [QUERY_KEYS.GROUP_DETAILS, variables.groupId],
+      });
     },
   });
 }

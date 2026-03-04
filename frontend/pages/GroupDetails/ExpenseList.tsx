@@ -29,13 +29,13 @@ function ExpenseList() {
     <Box
       maxWidth="1200px"
       mx="auto"
-      px={6}
-      py={10}>
+      px={{ base: 4, md: 6 }}
+      py={{ base: 8, md: 12 }}>
       {/* header  */}
       <HStack
         maxWidth="1200px"
         justifyContent="space-between"
-        mb="10">
+        mb={{ base: 8, md: 10 }}>
         {/* back button  */}
         <Button
           variant="outline"
@@ -62,7 +62,7 @@ function ExpenseList() {
       {isLoading ? (
         <SimpleGrid
           columns={{ base: 1, md: 2 }}
-          gap={6}>
+          gap={{ base: 4, md: 6 }}>
           {[1, 2, 3, 4].map((i) => (
             <Skeleton
               key={i}
@@ -74,7 +74,7 @@ function ExpenseList() {
       ) : expenses.length > 0 ? (
         <SimpleGrid
           columns={{ base: 1, md: 2 }}
-          gap={6}>
+          gap={{ base: 4, md: 6 }}>
           {expenses.map((expense: any) => (
             <ExpenseCardComponent
               key={expense._id}

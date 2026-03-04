@@ -6,10 +6,12 @@ import { RiArrowRightLine } from "react-icons/ri";
 import { useLogin } from "../hooks";
 import { useState } from "react";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { useToast } from "@/shared/toastService";
 
 function LoginPage() {
   const { mutate, isPending } = useLogin();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -20,7 +22,13 @@ function LoginPage() {
       { email, password },
       {
         onSuccess: () => {
+          toast.success("Login Successful", "Welcome back!");
           navigate("/dashboard");
+        },
+        onError: (error: any) => {
+          const errorMessage =
+            error?.response?.data?.message || "Login failed. Please try again.";
+          toast.error("Login Failed", errorMessage);
         },
       },
     );

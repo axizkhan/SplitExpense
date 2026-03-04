@@ -32,6 +32,7 @@ export const groupRepository = {
 
   async getGroup(groupId: string): Promise<GroupDetails> {
     const response = await httpClient.get(`/api/auth/group/${groupId}`);
+    console.log(response.data, "Response data");
     return response.data.data;
   },
 

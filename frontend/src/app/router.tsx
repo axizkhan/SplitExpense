@@ -2,8 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import Signup from "../../pages/auth/Signup";
 import GroupList from "../../pages/dashboard/GroupList";
-import ExpenseList from "../../pages/GroupDetails/ExpenseList";
-import GroupMember from "../../pages/GroupDetails/GroupMember";
+import GroupDetailsPage from "../../pages/GroupDetails/GroupDetailsPage";
 import Journel from "../../pages/GroupDetails/Journel";
 import ProtectedRoute from "./ProtectedRoute";
 import PublicOnlyRoute from "./PublicOnlyRoute";
@@ -44,21 +43,13 @@ export function AppRouter() {
           element={
             <ProtectedRoute>
               <div className="flex flex-col w-full">
-                <GroupMember />
+                <GroupDetailsPage />
               </div>
             </ProtectedRoute>
           }
         />
         <Route
-          path="/group/:groupId/expenses"
-          element={
-            <ProtectedRoute>
-              <ExpenseList />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/group/:groupId/journal"
+          path="/group/:groupId/journal/:memberId"
           element={
             <ProtectedRoute>
               <Journel />

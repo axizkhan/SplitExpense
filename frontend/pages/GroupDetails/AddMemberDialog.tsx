@@ -5,11 +5,14 @@ import {
   Input,
   Portal,
   VStack,
+  Text,
+  HStack,
+  Button,
 } from "@chakra-ui/react";
-
-import { Button } from "@chakra-ui/react";
 import { IoPersonAdd } from "react-icons/io5";
 import { useAddMember } from "../../src/features/groups/hooks";
+import { useToast } from "../../src/shared/toastService";
+import { useResponsive } from "../../src/hooks/useResponsive";
 import { useState } from "react";
 
 interface AddMemberDialogProps {
@@ -19,82 +22,158 @@ interface AddMemberDialogProps {
 function AddMemberDialog({ groupId }: AddMemberDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState("");
-
+  const toast = useToast();
+  const { isSmallScreen } = useResponsive();
   const { mutate, isPending } = useAddMember();
 
   const handleSubmit = () => {
-    if (email.trim()) {
-      mutate(
-        {
-          groupId,
-          payload: { newMemberEmail: email },
+    if (!email.trim()) return;
+
+    mutate(
+      {
+        groupId,
+        payload: { newMemberEmail: email },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Member Added", `${email} has been added to the group`);
+          setEmail("");
+          setIsOpen(false);
         },
-        {
-          onSuccess: () => {
-            setEmail("");
-            setIsOpen(false);
-          },
+        onError: (error: any) => {
+          const errorMessage =
+            error?.response?.data?.message ||
+            error?.message ||
+            "Failed to add member";
+          toast.error("Error", errorMessage);
         },
-      );
-    }
+      },
+    );
   };
 
   return (
     <Dialog.Root
-      size={{ mdDown: "lg", md: "md" }}
+      size={{ base: "lg", md: "md" }}
       placement="center"
       open={isOpen}
       onOpenChange={(e) => setIsOpen(e.open)}>
+      {/* Trigger Button */}
       <Dialog.Trigger asChild>
         <Button
-          colorScheme="teal"
+          colorPalette="teal"
+          size={isSmallScreen ? "sm" : "md"}
+          display="flex"
+          alignItems="center"
+          gap="2"
+          px={{ mdDown: 2, md: 3 }}
           alignSelf={{ base: "stretch", md: "auto" }}>
-          <IoPersonAdd /> Add Member
+          {!isSmallScreen && <IoPersonAdd />}
+          {isSmallScreen ? "+" : "Add Member"}
         </Button>
       </Dialog.Trigger>
+
       <Portal>
-        <Dialog.Backdrop />
+        {/* Backdrop */}
+        <Dialog.Backdrop
+          bg="blackAlpha.700"
+          backdropFilter="blur(8px)"
+        />
+
         <Dialog.Positioner>
-          <Dialog.Content>
-            <Dialog.Header className="flex flex-col">
-              <Dialog.Title>Add Group Member</Dialog.Title>
-              <p>Invite someone to join this group</p>
-            </Dialog.Header>
-            <Dialog.Body>
+          <Dialog.Content
+            p={{ base: 5, md: 6 }}
+            borderRadius="xl"
+            bg="linear-gradient(135deg, #1e293b 0%, #0f172a 100%)"
+            border="1px solid"
+            borderColor="whiteAlpha.200"
+            boxShadow="0 20px 40px rgba(0,0,0,0.6)">
+            {/* Header */}
+            <Dialog.Header pb={3}>
               <VStack
-                justify="space-between"
-                align="center"
-                gap={4}>
+                align="start"
+                gap="1">
+                <Dialog.Title
+                  fontSize="lg"
+                  fontWeight="semibold"
+                  color="white">
+                  Add Group Member
+                </Dialog.Title>
+                <Text
+                  fontSize="sm"
+                  color="gray.400">
+                  Invite someone to join this group
+                </Text>
+              </VStack>
+            </Dialog.Header>
+
+            {/* Body */}
+            <Dialog.Body py={6}>
+              <VStack
+                align="stretch"
+                gap={5}>
                 <Field.Root required>
-                  <Field.Label>
+                  <Field.Label
+                    color="gray.200"
+                    fontWeight="medium">
                     Email <Field.RequiredIndicator />
                   </Field.Label>
+
                   <Input
-                    placeholder="Enter member's email"
                     type="email"
+                    placeholder="Enter member's email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    bg="whiteAlpha.100"
+                    px={2}
+                    borderColor="whiteAlpha.300"
+                    color="white"
+                    _placeholder={{ color: "gray.500" }}
+                    _focus={{
+                      borderColor: "teal.400",
+                      boxShadow: "0 0 0 2px rgba(20, 184, 166, 0.25)",
+                    }}
                   />
+
+                  <Field.HelperText color="gray.500">
+                    They will receive an invitation to join.
+                  </Field.HelperText>
                 </Field.Root>
               </VStack>
             </Dialog.Body>
-            <Dialog.Footer>
-              <Dialog.ActionTrigger asChild>
+
+            {/* Footer */}
+            <Dialog.Footer pt={4}>
+              <HStack
+                justify="flex-end"
+                w="full"
+                gap="3">
+                <Dialog.ActionTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    color="gray.300"
+                    _hover={{ bg: "whiteAlpha.100" }}>
+                    Cancel
+                  </Button>
+                </Dialog.ActionTrigger>
+
                 <Button
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}>
-                  Cancel
+                  colorPalette="teal"
+                  onClick={handleSubmit}
+                  loading={isPending}
+                  loadingText="Adding..."
+                  px={{ mdDown: 2, md: 3 }}>
+                  Add Member
                 </Button>
-              </Dialog.ActionTrigger>
-              <Button
-                colorScheme="teal"
-                onClick={handleSubmit}
-                disabled={isPending}>
-                Add Member
-              </Button>
+              </HStack>
             </Dialog.Footer>
+
+            {/* Close Button */}
             <Dialog.CloseTrigger asChild>
-              <CloseButton size="sm" />
+              <CloseButton
+                size="sm"
+                color="gray.400"
+                _hover={{ color: "white" }}
+              />
             </Dialog.CloseTrigger>
           </Dialog.Content>
         </Dialog.Positioner>

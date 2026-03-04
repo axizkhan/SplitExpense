@@ -45,6 +45,8 @@ export class ExpenseService {
     const createdExpense = await Expense.create(expenseDocument);
 
     let averageExpense = expense.amount / group.members.length;
+    let creatorAmount = averageExpense * (group.members.length - 1);
+
     for (let member of group.members) {
       let borowerId = member.memberId.toString();
       if (borowerId !== userId) {
@@ -94,7 +96,7 @@ export class ExpenseService {
 
         member.amountOwed += averageExpense;
       } else {
-        member.amountToBeRecieved += averageExpense;
+        member.amountToBeRecieved += creatorAmount;
       }
     }
 
@@ -131,6 +133,7 @@ export class ExpenseService {
       let result = await Expense.findOneAndUpdate(
         { _id: expenseId },
         { $inc: { amount: difference } },
+        { new: true },
       );
       return result;
     } catch (err) {

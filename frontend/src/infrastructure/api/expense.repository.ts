@@ -40,12 +40,11 @@ export const expenseRepository = {
 
   async editExpense(
     expenseId: string,
-    payload: Partial<ExpensePayload>,
+    newExpenseAmount: number,
   ): Promise<Expense> {
-    const response = await httpClient.put(
-      `/api/auth/expense/${expenseId}`,
-      payload,
-    );
+    const response = await httpClient.put(`/api/auth/expense/${expenseId}`, {
+      newExpenseAmount,
+    });
     return response.data.data;
   },
 

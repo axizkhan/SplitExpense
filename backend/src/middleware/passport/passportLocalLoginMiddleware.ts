@@ -37,7 +37,7 @@ export class PassportStrategy {
               });
             }
 
-            return done(null, user._id, { message: "LoggedIn" });
+            return done(null, user, { message: "LoggedIn" });
           } catch (error) {
             throw error;
           }

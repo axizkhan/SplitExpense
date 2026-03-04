@@ -14,17 +14,13 @@ export class UserController {
       let result = await this.groupService.getAllGroup(req.user.id);
 
       let finalData = result.map((group) => {
-        let senitizedGroup = {
+        return {
+          _id: group._id,
           name: group.name,
-          totalMember: group.members.length,
-          createdAt: new Date(group._id.getTimestamp()),
-          description: "",
+          members: group.members,
+          createdAt: group.createdAt || new Date(),
+          description: group.description || "",
         };
-        if (group.description) {
-          senitizedGroup.description = group.description;
-        }
-
-        return senitizedGroup;
       });
 
       req.resData = {

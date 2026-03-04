@@ -36,7 +36,7 @@ export class EntryService {
       let averageExpense = difference / member;
       let result = await Entry.updateMany(
         { expenseId },
-        { $in: { amount: averageExpense } },
+        { $inc: { amount: averageExpense } },
       );
       return result;
     } catch (err) {

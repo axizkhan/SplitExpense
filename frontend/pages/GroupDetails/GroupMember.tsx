@@ -25,8 +25,8 @@ function GroupMember() {
   if (isLoading) {
     return (
       <Box
-        px={6}
-        py={6}>
+        px={{ base: 4, md: 6 }}
+        py={{ base: 6, md: 8 }}>
         <Skeleton
           height="40px"
           mb={6}
@@ -54,8 +54,8 @@ function GroupMember() {
   if (!groupDetails) {
     return (
       <Box
-        px={6}
-        py={6}>
+        px={{ base: 4, md: 6 }}
+        py={{ base: 6, md: 8 }}>
         <Text>Group not found</Text>
       </Box>
     );

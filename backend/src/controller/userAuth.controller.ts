@@ -1,3 +1,4 @@
+/// <reference path="../types/express.d.ts" />
 import { Request, Response, NextFunction } from "express";
 import { HashingUtil } from "../utils/hashing.util";
 import passport from "passport";
@@ -25,17 +26,31 @@ export class UserAuthController {
 
     user.password = hashPassword;
 
-    let data = await this.userAuthService.userLocalSignup(user);
+    let newUser = await this.userAuthService.userLocalSignup(user);
 
-    const resData = {
-      data,
-      message: "User signup successfully",
-      statusCode: 201,
-    };
+    try {
+      const accessToken = await this.jwt.grantAccessToken(newUser._id);
 
-    req.resData = resData;
+      const resData = {
+        data: {
+          user: {
+            id: newUser._id,
+            email: newUser.emailId,
+            firstName: newUser.name?.firstName || "",
+            lastName: newUser.name?.lastName || "",
+          },
+          accessToken,
+        },
+        message: "User signup successfully",
+        statusCode: 201,
+      };
 
-    next();
+      req.resData = resData;
+
+      next();
+    } catch (error) {
+      next(error);
+    }
   };
 
   userLocalLogin = async (req: Request, res: Response, next: NextFunction) => {
@@ -53,7 +68,7 @@ export class UserAuthController {
             );
           }
 
-          req.login(user, { session: false }, (loginErr) => {
+          req.login(user, { session: false }, async (loginErr) => {
             if (loginErr) {
               return next(
                 new Unauthorized(
@@ -63,14 +78,28 @@ export class UserAuthController {
               );
             }
 
-            this.jwt
-              .grantAccessToken(user)
-              .then((token) => {
-                res.send(token);
-              })
-              .catch((tokenErr) => {
-                next(tokenErr);
-              });
+            try {
+              const accessToken = await this.jwt.grantAccessToken(user._id);
+
+              const resData = {
+                data: {
+                  user: {
+                    id: user._id,
+                    email: user.emailId,
+                    firstName: user.name?.firstName || "",
+                    lastName: user.name?.lastName || "",
+                  },
+                  accessToken,
+                },
+                message: "User login successfully",
+                statusCode: 200,
+              };
+
+              req.resData = resData;
+              next();
+            } catch (tokenErr) {
+              next(tokenErr);
+            }
           });
         } catch (error) {
           next(error);
