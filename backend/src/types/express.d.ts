@@ -8,7 +8,11 @@ declare global {
         data?: any;
         message: string;
       };
-      //   user?: any;
+      user?: {
+        id: string;
+        iat: number;
+        exp: number;
+      };
     }
   }
 }

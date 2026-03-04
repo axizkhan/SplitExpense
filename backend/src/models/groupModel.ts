@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
+import { IGroup } from "../types/group";
 const { Schema } = mongoose;
 
-const GroupSchema = new Schema({
+const GroupSchema = new Schema<IGroup>({
   createdBy: {
     type: Schema.Types.ObjectId,
     ref: "User",
@@ -20,9 +21,9 @@ const GroupSchema = new Schema({
     {
       memberId: { type: Schema.Types.ObjectId, ref: "User" },
       amountOwed: { type: Number, default: 0 },
-      amountRecieved: { type: Number, default: 0 },
+      amountToBeRecieved: { type: Number, default: 0 },
     },
   ],
 });
 
-export const Group = mongoose.model("Group", GroupSchema);
+export const Group = mongoose.model<IGroup>("Group", GroupSchema);
