@@ -43,22 +43,38 @@ export class UserAuthController {
       "local",
       { session: false },
       async (err: Error, user: any, info: any) => {
-        if (err || !user) {
-          throw new Unauthorized(
-            "Either password or email is incorrect",
-            "PASSWORD_OR_EMAIL_INCORRECT",
-          );
-        }
-
-        req.login(user, { session: false }, (err) => {
-          if (err)
-            throw new Unauthorized(
-              "Either password or email is incorrect",
-              "PASSWORD_OR_EMAIL_INCORRECT",
+        try {
+          if (err || !user) {
+            return next(
+              new Unauthorized(
+                "Either password or email is incorrect",
+                "PASSWORD_OR_EMAIL_INCORRECT",
+              ),
             );
-        });
-        const token = await this.jwt.grantAccessToken(user);
-        res.send(token);
+          }
+
+          req.login(user, { session: false }, (loginErr) => {
+            if (loginErr) {
+              return next(
+                new Unauthorized(
+                  "Either password or email is incorrect",
+                  "PASSWORD_OR_EMAIL_INCORRECT",
+                ),
+              );
+            }
+
+            this.jwt
+              .grantAccessToken(user)
+              .then((token) => {
+                res.send(token);
+              })
+              .catch((tokenErr) => {
+                next(tokenErr);
+              });
+          });
+        } catch (error) {
+          next(error);
+        }
       },
     )(req, res, next);
   };
