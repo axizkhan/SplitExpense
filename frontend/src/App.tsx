@@ -1,12 +1,7 @@
-import Journel from "../pages/GroupDetails/Journel";
-import "./App.css";
+import { AppRouter } from "./app/router";
 
 function App() {
-  return (
-    <>
-      <Journel />
-    </>
-  );
+  return <AppRouter />;
 }
 
 export default App;

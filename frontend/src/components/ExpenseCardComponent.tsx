@@ -1,10 +1,20 @@
-import React from "react";
 import { Button, Card, HStack, Text, VStack, Heading } from "@chakra-ui/react";
 
 import { MdOutlineCurrencyRupee } from "react-icons/md";
-
 import { BsThreeDotsVertical } from "react-icons/bs";
-function ExpenseCardComponent() {
+import type { Expense } from "@/infrastructure/api/expense.repository";
+
+interface ExpenseCardProps {
+  expense: Expense;
+}
+
+function ExpenseCardComponent({ expense }: ExpenseCardProps) {
+  const createdDate = new Date(expense.createdAt).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+
   return (
     <Card.Root
       borderRadius="xl"
@@ -17,44 +27,31 @@ function ExpenseCardComponent() {
       cursor="pointer">
       <Card.Body>
         <HStack justify="space-between">
-          <VStack
-            alignSelf="start"
-            align="start">
-            <Text
-              fontWeight="semibold"
-              fontSize="lg">
-              Electricity Bill
+          <VStack alignSelf="start" align="start">
+            <Text fontWeight="semibold" fontSize="lg">
+              {expense.title}
             </Text>
 
             <HStack gap={2}>
-              <Text
-                fontSize="sm"
-                color="gray.500">
-                Paid by alex
+              <Text fontSize="sm" color="gray.500">
+                Paid by {expense.paidBy}
               </Text>
-              <Text
-                fontSize="xs"
-                color="gray.400">
-                Created: June 2024
+              <Text fontSize="xs" color="gray.400">
+                Created: {createdDate}
               </Text>
             </HStack>
 
-            <Text
-              fontSize="sm"
-              color="gray.500">
-              Shared living expenses, rent, utilities, and grocery runs for the
-              flat.
-            </Text>
+            {expense.description && (
+              <Text fontSize="sm" color="gray.500">
+                {expense.description}
+              </Text>
+            )}
           </VStack>
           <HStack>
-            <Heading
-              display="flex"
-              alignItems="center">
-              <MdOutlineCurrencyRupee /> 2,500
+            <Heading display="flex" alignItems="center">
+              <MdOutlineCurrencyRupee /> {expense.amount}
             </Heading>
-            <Button
-              variant="outline"
-              size="xs">
+            <Button variant="outline" size="xs">
               <BsThreeDotsVertical />
             </Button>
           </HStack>

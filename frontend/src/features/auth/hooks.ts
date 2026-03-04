@@ -12,3 +12,15 @@ export function useLogin() {
     },
   });
 }
+
+export function useSignup() {
+  const { setAuth } = useAuth();
+
+  return useMutation({
+    mutationFn: authRepository.signup,
+    onSuccess: (data) => {
+      setAuth(data.user, data.accessToken);
+    },
+  });
+}
+

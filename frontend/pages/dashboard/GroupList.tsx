@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Heading,
   Text,
@@ -7,14 +6,18 @@ import {
   VStack,
   HStack,
   Stat,
+  Skeleton,
 } from "@chakra-ui/react";
 
 import CreateGroupDialog from "./CreateGroupDialog";
 
 import { MdGroups } from "react-icons/md";
 import GroupCardComponents from "../../src/components/GroupCardComponents";
+import { useGroups } from "../../src/features/groups/hooks";
 
 function GroupList() {
+  const { data: groups = [], isLoading } = useGroups();
+
   return (
     <Box
       maxW="1200px"
@@ -46,24 +49,40 @@ function GroupList() {
           <Heading
             size="md"
             mb={6}>
-            Total: 8 Groups
+            Total: {groups.length} Group{groups.length !== 1 ? "s" : ""}
           </Heading>
 
-          <SimpleGrid
-            columns={{ base: 1, md: 2 }}
-            gap={6}>
-            <GroupCardComponents />
-            <GroupCardComponents />
-            <GroupCardComponents />
-            <GroupCardComponents />
-          </SimpleGrid>
+          {isLoading ? (
+            <SimpleGrid
+              columns={{ base: 1, md: 2 }}
+              gap={6}>
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton
+                  key={i}
+                  height="200px"
+                  borderRadius="xl"
+                />
+              ))}
+            </SimpleGrid>
+          ) : (
+            <SimpleGrid
+              columns={{ base: 1, md: 2 }}
+              gap={6}>
+              {groups.map((group: any) => (
+                <GroupCardComponents
+                  key={group._id}
+                  group={group}
+                />
+              ))}
+            </SimpleGrid>
+          )}
         </Box>
 
         {/* Summary Sidebar */}
         <VStack
           align="stretch"
           gap={6}
-          className="lg:h-10 ">
+          className="lg:h-10">
           <Stat.Root
             p={5}
             borderWidth="1px"
@@ -77,7 +96,7 @@ function GroupList() {
             <Stat.ValueText
               fontSize="2xl"
               fontWeight="bold">
-              8
+              {groups.length}
             </Stat.ValueText>
           </Stat.Root>
         </VStack>

@@ -1,9 +1,26 @@
-import React from "react";
 import { Button, Card, HStack, Stack, Text, Box, Icon } from "@chakra-ui/react";
 import { GrGroup } from "react-icons/gr";
 import { IoMdOpen } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
+import type { Group } from "@/infrastructure/api/group.repository";
 
-function GroupCardComponents() {
+interface GroupCardProps {
+  group: Group;
+}
+
+function GroupCardComponents({ group }: GroupCardProps) {
+  const navigate = useNavigate();
+
+  const handleOpen = () => {
+    navigate(`/group/${group._id}`);
+  };
+
+  const createdDate = new Date(group.createdAt).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+
   return (
     <Card.Root
       borderRadius="xl"
@@ -32,15 +49,14 @@ function GroupCardComponents() {
           <Text
             fontWeight="semibold"
             fontSize="lg">
-            Apartment 4B
+            {group.name}
           </Text>
         </HStack>
 
         <Text
           fontSize="sm"
           color="gray.500">
-          Shared living expenses, rent, utilities, and grocery runs for the
-          flat.
+          {group.description || "No description provided"}
         </Text>
       </Card.Body>
 
@@ -51,12 +67,12 @@ function GroupCardComponents() {
           <Text
             fontSize="sm"
             color="gray.500">
-            Members: 5
+            Members: {group.members.length}
           </Text>
           <Text
             fontSize="xs"
             color="gray.400">
-            Created: June 2024
+            Created: {createdDate}
           </Text>
         </Stack>
 
@@ -64,7 +80,8 @@ function GroupCardComponents() {
           size="sm"
           variant="outline"
           colorScheme="teal"
-          borderRadius="full">
+          borderRadius="full"
+          onClick={handleOpen}>
           Open
           <IoMdOpen />
         </Button>

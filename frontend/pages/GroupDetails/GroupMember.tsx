@@ -7,21 +7,66 @@ import {
   Text,
   VStack,
   Stack,
-  Badge,
-  IconButton,
-  Menu,
+  Skeleton,
 } from "@chakra-ui/react";
-import { IoPersonAdd } from "react-icons/io5";
-import { BsThreeDotsVertical } from "react-icons/bs";
+import { IoArrowBack } from "react-icons/io5";
 import GroupSummaryCard from "../../src/components/GroupSummaryCard";
 import GroupMemberCard from "../../src/components/GroupMemberCard";
-import React from "react";
+import PaymentDialog from "./PaymentDialog";
+import AddMemberDialog from "./AddMemberDialog";
+import { useGroupDetails } from "../../src/features/groups/hooks";
+import { useParams, useNavigate } from "react-router-dom";
 
 function GroupMember() {
+  const { groupId } = useParams<{ groupId: string }>();
+  const navigate = useNavigate();
+  const { data: groupDetails, isLoading } = useGroupDetails(groupId || "");
+
+  if (isLoading) {
+    return (
+      <Box px={6} py={6}>
+        <Skeleton height="40px" mb={6} />
+        <SimpleGrid columns={{ base: 1, sm: 2, lg: 3 }} gap={6} mb={10}>
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} height="150px" borderRadius="xl" />
+          ))}
+        </SimpleGrid>
+        <Skeleton height="300px" borderRadius="xl" />
+      </Box>
+    );
+  }
+
+  if (!groupDetails) {
+    return (
+      <Box px={6} py={6}>
+        <Text>Group not found</Text>
+      </Box>
+    );
+  }
+
+  const summaryCards = [
+    {
+      title: "Total Group Expense",
+      amount: groupDetails.userData?.totalSpent || 0,
+      badge: "All time",
+      color: "green",
+    },
+    {
+      title: "You Owe",
+      amount: groupDetails.userData?.youOwe || 0,
+      badge: "Pending payments",
+      color: "red",
+    },
+    {
+      title: "You Will Receive",
+      amount: groupDetails.userData?.youWillReceive || 0,
+      badge: "From members",
+      color: "teal",
+    },
+  ];
+
   return (
-    <Box
-      px={6}
-      py={6}>
+    <Box px={6} py={6}>
       {/* Header */}
       <Stack
         direction={{ base: "column", md: "row" }}
@@ -29,18 +74,20 @@ function GroupMember() {
         align={{ base: "start", md: "center" }}
         gap={4}
         mb={8}>
-        <VStack
-          align="start"
-          gap={1}>
-          <Heading size="lg">Group Members</Heading>
-          <Text color="gray.400">Apartment 4B Financial Ledger</Text>
-        </VStack>
+        <HStack gap={3}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/dashboard")}>
+            <IoArrowBack />
+          </Button>
+          <VStack align="start" gap={1}>
+            <Heading size="lg">{groupDetails.group?.name}</Heading>
+            <Text color="gray.400">Financial Ledger</Text>
+          </VStack>
+        </HStack>
 
-        <Button
-          colorPalette="teal"
-          alignSelf={{ base: "stretch", md: "auto" }}>
-          <IoPersonAdd /> Add Member
-        </Button>
+        <AddMemberDialog groupId={groupId || ""} />
       </Stack>
 
       {/* INFO CARDS */}
@@ -48,70 +95,44 @@ function GroupMember() {
         columns={{ base: 1, sm: 2, lg: 3 }}
         gap={6}
         mb={10}>
-        {[
-          {
-            title: "Total Group Expense",
-            amount: 120000,
-            badge: "+12% this month",
-            color: "green",
-          },
-          {
-            title: "You Owe",
-            amount: 5000,
-            badge: "Pending 3 payments",
-            color: "red",
-          },
-          {
-            title: "You Will Receive",
-            amount: 12000,
-            badge: "From 4 members",
-            color: "teal",
-          },
-        ].map((card, i) => (
-          <GroupSummaryCard
-            i={i}
-            card={card}
-          />
+        {summaryCards.map((card, i) => (
+          <GroupSummaryCard key={i} i={i} card={card} />
         ))}
       </SimpleGrid>
 
       {/* MEMBER CARDS */}
       <Box>
-        <Heading
-          size="md"
-          mb={6}>
+        <Heading size="md" mb={6}>
           Ledger Details
         </Heading>
 
-        <SimpleGrid
-          columns={{ base: 1, md: 2 }}
-          gap={6}>
-          {[
-            {
-              name: "Arjun Mehta",
-              amount: "₹4,500",
-              status: "To Receive",
-              color: "teal",
-            },
-            {
-              name: "Priya Sharma",
-              amount: "₹1,200",
-              status: "You Owe",
-              color: "red",
-            },
-            {
-              name: "Rohan Verma",
-              amount: "₹0",
-              status: "Settled",
-              color: "gray",
-            },
-          ].map((member, i) => (
-            <GroupMemberCard
-              i={i}
-              member={member}
-            />
-          ))}
-        </SimpleGrid>
+        {groupDetails.balances && groupDetails.balances.length > 0 ? (
+          <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+            {groupDetails.balances.map((balance: any, i: number) => (
+              <Box key={i}>
+                <GroupMemberCard
+                  i={i}
+                  member={{
+                    name: balance.memberName,
+                    amount: `₹${balance.amount}`,
+                    status: balance.type === "owe" ? "You Owe" : "To Receive",
+                    color: balance.type === "owe" ? "red" : "teal",
+                  }}
+                />
+                {balance.amount > 0 && (
+                  <PaymentDialog
+                    memberId={balance.memberId}
+                    memberName={balance.memberName}
+                    groupId={groupId || ""}
+                    balance={balance.amount}
+                  />
+                )}
+              </Box>
+            ))}
+          </SimpleGrid>
+        ) : (
+          <Text color="gray.500">No balance details available</Text>
+        )}
       </Box>
     </Box>
   );

@@ -9,28 +9,19 @@ export interface Group {
   createdAt: string;
 }
 
-export interface GroupDetails {
-  group: Group;
-  userData: {
-    totalSpent: number;
-    youOwe: number;
-    youWillReceive: number;
-  };
-  balances: Array<{
-    memberId: string;
-    memberName: string;
-    amount: number;
-    type: "owe" | "receive";
-  }>;
+export interface GroupDetails extends Group {
+  totalExpense: number;
+  youOwe: number;
+  youWillReceive: number;
 }
 
-export const groupRepository = {
-  async getGroups(): Promise<Group[]> {
+export const userRepository = {
+  async getAllGroups(): Promise<Group[]> {
     const response = await httpClient.get("/api/auth/user");
     return response.data.data;
   },
 
-  async getGroup(groupId: string): Promise<GroupDetails> {
+  async getGroupDetails(groupId: string): Promise<GroupDetails> {
     const response = await httpClient.get(`/api/auth/group/${groupId}`);
     return response.data.data;
   },
@@ -50,4 +41,3 @@ export const groupRepository = {
     await httpClient.put(`/api/auth/group/${groupId}`, payload);
   },
 };
-

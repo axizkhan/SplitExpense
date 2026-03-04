@@ -1,18 +1,45 @@
-import React from "react";
 import { Heading } from "@chakra-ui/react";
-import { Link } from "@chakra-ui/react";
 import { Field, Input } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
 import { Text } from "@chakra-ui/react";
 import { RiArrowRightLine } from "react-icons/ri";
-import { withMask } from "use-mask-input";
+import { useState } from "react";
+import { useSignup } from "../../src/features/auth/hooks";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import WalletLogo from "../../logo/WalletLogo";
 
 function Signup() {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    mobileNumber: "",
+    upiId: "",
+  });
+
+  const { mutate, isPending } = useSignup();
+  const navigate = useNavigate();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    mutate(
+      formData as any, {
+      onSuccess: () => {
+        navigate("/dashboard");
+      },
+    });
+  };
+
   return (
-    <div className="flex items-center justify-center h-screen   ">
+    <div className="flex items-center justify-center min-h-screen">
       {/* main container */}
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-5 w-full max-w-md px-4">
         {/* header */}
         <div className="flex flex-col w-full items-center">
           {/* logo */}
@@ -20,7 +47,7 @@ function Signup() {
             <WalletLogo size={80} />
           </div>
           {/* header text  */}
-          <div className="flex flex-col w-full items-center ">
+          <div className="flex flex-col w-full items-center">
             <Heading
               as="h1"
               size="xl">
@@ -30,67 +57,95 @@ function Signup() {
           </div>
         </div>
         {/* body  */}
-        <div className="flex flex-col gap-2">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-2">
           <Field.Root required>
             <Field.Label>
               First Name <Field.RequiredIndicator />
             </Field.Label>
-            <Input placeholder="Enter your email" />
+            <Input
+              name="firstName"
+              placeholder="Enter your first name"
+              value={formData.firstName}
+              onChange={handleChange}
+            />
           </Field.Root>
           <Field.Root required>
             <Field.Label>
               Last Name <Field.RequiredIndicator />
             </Field.Label>
-            <Input placeholder="Enter your email" />
+            <Input
+              name="lastName"
+              placeholder="Enter your last name"
+              value={formData.lastName}
+              onChange={handleChange}
+            />
           </Field.Root>
           <Field.Root required>
             <Field.Label>
               Email <Field.RequiredIndicator />
             </Field.Label>
-            <Input placeholder="Enter your email" />
+            <Input
+              name="email"
+              type="email"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+            />
             <Field.HelperText>We'll never share your email.</Field.HelperText>
           </Field.Root>
           <Field.Root required>
             <Field.Label>
               Password <Field.RequiredIndicator />
             </Field.Label>
-            <Input placeholder="Enter your email" />
-          </Field.Root>
-          <Field.Root>
-            <Field.Label>
-              Mobile Number <Field.RequiredIndicator />
-            </Field.Label>
             <Input
-              placeholder=" 999999999"
-              ref={withMask(" 9999999999")}
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
             />
           </Field.Root>
           <Field.Root>
-            <Field.Label>
-              UPI ID <Field.RequiredIndicator />
-            </Field.Label>
-            <Input placeholder="Enter your email" />
+            <Field.Label>Mobile Number</Field.Label>
+            <Input
+              name="mobileNumber"
+              placeholder="9999999999"
+              value={formData.mobileNumber}
+              onChange={handleChange}
+            />
           </Field.Root>
-        </div>
-        {/* bottom  */}
-        <div className="flex flex-col gap-3 w-full items-center">
-          {/* signup button */}
-          <Button
-            variant="solid"
-            className="w-full">
-            Sign Up <RiArrowRightLine />{" "}
-          </Button>
-          {/* login page link */}
-          <Text className="">
-            Already have an accounts?{" "}
-            <Link
-              variant="underline"
-              href="https://chakra-ui.com"
-              colorPalette="teal">
-              Login
-            </Link>{" "}
-          </Text>
-        </div>
+          <Field.Root>
+            <Field.Label>UPI ID</Field.Label>
+            <Input
+              name="upiId"
+              placeholder="user@upi"
+              value={formData.upiId}
+              onChange={handleChange}
+            />
+          </Field.Root>
+
+          {/* bottom  */}
+          <div className="flex flex-col gap-3 w-full items-center mt-4">
+            {/* signup button */}
+            <Button
+              type="submit"
+              variant="solid"
+              className="w-full"
+              disabled={isPending}
+              colorScheme="teal">
+              Sign Up <RiArrowRightLine />
+            </Button>
+            {/* login page link */}
+            <Text className="">
+              Already have an account?{" "}
+              <RouterLink to="/login">
+                <span className="text-teal-600 hover:underline">Login</span>
+              </RouterLink>
+            </Text>
+          </div>
+        </form>
       </div>
     </div>
   );

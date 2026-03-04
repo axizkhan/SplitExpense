@@ -1,89 +1,69 @@
-import React from "react";
-import { Box, Button, HStack, SimpleGrid, VStack } from "@chakra-ui/react";
-import { Heading, Text } from "@chakra-ui/react";
-import { Badge } from "@chakra-ui/react";
-import ExpenseCardComponent from "../../src/components/ExpenseCardComponent";
-import { HiOutlinePlus } from "react-icons/hi";
-import { BsThreeDotsVertical } from "react-icons/bs";
+import {
+  Box,
+  Button,
+  HStack,
+  SimpleGrid,
+  VStack,
+  Heading,
+  Text,
+  Badge,
+  Skeleton,
+} from "@chakra-ui/react";
 import { IoArrowBack } from "react-icons/io5";
-import { Code, Menu, Portal, Stack } from "@chakra-ui/react";
-import { useState } from "react";
+import ExpenseCardComponent from "../../src/components/ExpenseCardComponent";
+import { useParams, useNavigate } from "react-router-dom";
 import CreateExpenseDialog from "./CreateExpenseDialog";
+import { useGroupExpenses } from "../../src/features/groups/hooks-expense";
 
 function ExpenseList() {
-  const [open, setOpen] = useState(false);
+  const { groupId } = useParams<{ groupId: string }>();
+  const navigate = useNavigate();
+  const { data: expenses = [], isLoading } = useGroupExpenses(groupId || "");
+
+  const totalAmount = expenses.reduce((sum: number, expense: any) => sum + expense.amount, 0);
+
   return (
-    <Box
-      maxWidth="1200px"
-      mx="auto"
-      px={6}
-      py={10}>
+    <Box maxWidth="1200px" mx="auto" px={6} py={10}>
       {/* header  */}
-      <HStack
-        maxWidth="1200px"
-        justifyContent="space-between"
-        mb="10">
+      <HStack maxWidth="1200px" justifyContent="space-between" mb="10">
         {/* back button  */}
-        <Button variant="outline">
+        <Button
+          variant="outline"
+          onClick={() => navigate(-1)}>
           <IoArrowBack />
         </Button>
-        <VStack
-          align="center"
-          gap={1}>
+        <VStack align="center" gap={1}>
           <Heading>Expenses</Heading>
           <Text>All Expenses</Text>
-          <Badge
-            variant="solid"
-            size={"lg"}>
-            4800
+          <Badge variant="solid" size={"lg"}>
+            ₹{totalAmount}
           </Badge>
         </VStack>
 
-        {/* menu button  */}
-        <Menu.Root
-          open={open}
-          onOpenChange={(e) => setOpen(e.open)}>
-          <Menu.Trigger asChild>
-            <Button
-              variant="outline"
-              size="sm">
-              <BsThreeDotsVertical />
-            </Button>
-          </Menu.Trigger>
-          <Portal>
-            <Menu.Positioner>
-              <Menu.Content>
-                <Menu.Item value="new-txt">New Text File</Menu.Item>
-                <Menu.Item value="new-file">New File...</Menu.Item>
-                <Menu.Item value="new-win">New Window</Menu.Item>
-                <Menu.Item value="open-file">Open File...</Menu.Item>
-                <Menu.Item value="export">Export</Menu.Item>
-              </Menu.Content>
-            </Menu.Positioner>
-          </Portal>
-        </Menu.Root>
-      </HStack>
-      {/* main contain  */}
-      <SimpleGrid
-        columns={{ base: 1, md: 2 }}
-        gap={6}>
-        <ExpenseCardComponent />
-        <ExpenseCardComponent />
-        <ExpenseCardComponent />
-        <ExpenseCardComponent />
-      </SimpleGrid>
-
-      {/* create new expense  */}
-      <Box
-        maxWidth="1200px"
-        mx="auto"
-        px={6}
-        py={10}
-        border={1}
-        alignItems={"end"}
-        justifyItems={"end"}>
+        {/* create new expense  */}
         <CreateExpenseDialog />
-      </Box>
+      </HStack>
+
+      {/* main contain  */}
+      {isLoading ? (
+        <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} height="200px" borderRadius="xl" />
+          ))}
+        </SimpleGrid>
+      ) : expenses.length > 0 ? (
+        <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+          {expenses.map((expense: any) => (
+            <ExpenseCardComponent key={expense._id} expense={expense} />
+          ))}
+        </SimpleGrid>
+      ) : (
+        <Box textAlign="center" py={10}>
+          <Text color="gray.500" fontSize="lg">
+            No expenses yet. Create one to get started!
+          </Text>
+        </Box>
+      )}
     </Box>
   );
 }

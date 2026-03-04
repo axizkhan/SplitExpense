@@ -4,53 +4,40 @@ import {
   Field,
   Input,
   Portal,
-  Text,
   VStack,
-  Alert,
 } from "@chakra-ui/react";
 
 import { Button } from "@chakra-ui/react";
-import { MdCreditCard } from "react-icons/md";
-import { useCreatePayment } from "../../src/features/groups/hooks-payment";
+import { IoPersonAdd } from "react-icons/io5";
+import { useAddMember } from "../../src/features/groups/hooks";
 import { useState } from "react";
 
-interface PaymentDialogProps {
-  memberId: string;
-  memberName: string;
+interface AddMemberDialogProps {
   groupId: string;
-  balance: number;
 }
 
-function PaymentDialog({
-  memberId,
-  memberName,
-  groupId,
-  balance,
-}: PaymentDialogProps) {
+function AddMemberDialog({ groupId }: AddMemberDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [amount, setAmount] = useState<string>("");
+  const [email, setEmail] = useState("");
 
-  const { mutate, isPending } = useCreatePayment();
+  const { mutate, isPending } = useAddMember();
 
   const handleSubmit = () => {
-    if (amount && parseFloat(amount) > 0) {
+    if (email.trim()) {
       mutate(
         {
           groupId,
-          paidToId: memberId,
-          amount: parseFloat(amount),
-        } as any,
+          payload: { newMemberEmail: email },
+        },
         {
           onSuccess: () => {
-            setAmount("");
+            setEmail("");
             setIsOpen(false);
           },
         }
       );
     }
   };
-
-  const isOwing = balance > 0;
 
   return (
     <Dialog.Root
@@ -59,43 +46,29 @@ function PaymentDialog({
       open={isOpen}
       onOpenChange={(e) => setIsOpen(e.open)}>
       <Dialog.Trigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          colorScheme="teal">
-          <MdCreditCard /> Payment
+        <Button colorScheme="teal" alignSelf={{ base: "stretch", md: "auto" }}>
+          <IoPersonAdd /> Add Member
         </Button>
       </Dialog.Trigger>
       <Portal>
         <Dialog.Backdrop />
         <Dialog.Positioner>
-          <Dialog.Content p={{ mdDown: 1, md: 2 }}>
+          <Dialog.Content>
             <Dialog.Header className="flex flex-col">
-              <Dialog.Title>Make Payment</Dialog.Title>
-              <Text> Pay {memberName}</Text>
+              <Dialog.Title>Add Group Member</Dialog.Title>
+              <p>Invite someone to join this group</p>
             </Dialog.Header>
-            <Alert.Root status={isOwing ? "error" : "success"}>
-              <Alert.Indicator />
-              <Alert.Title>
-                Current Balance: {isOwing ? `You owe ₹${balance}` : `You are owed ₹${Math.abs(balance)}`}
-              </Alert.Title>
-            </Alert.Root>
             <Dialog.Body>
-              <VStack
-                justify="space-between"
-                align="center"
-                gap={4}>
+              <VStack justify="space-between" align="center" gap={4}>
                 <Field.Root required>
                   <Field.Label>
-                    Amount <Field.RequiredIndicator />
+                    Email <Field.RequiredIndicator />
                   </Field.Label>
                   <Input
-                    placeholder="Enter amount"
-                    type="number"
-                    step="0.01"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    min="0"
+                    placeholder="Enter member's email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </Field.Root>
               </VStack>
@@ -112,7 +85,7 @@ function PaymentDialog({
                 colorScheme="teal"
                 onClick={handleSubmit}
                 disabled={isPending}>
-                Make Payment
+                Add Member
               </Button>
             </Dialog.Footer>
             <Dialog.CloseTrigger asChild>
@@ -125,4 +98,4 @@ function PaymentDialog({
   );
 }
 
-export default PaymentDialog;
+export default AddMemberDialog;
