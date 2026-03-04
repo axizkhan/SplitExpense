@@ -63,3 +63,5 @@ httpClient.interceptors.response.use(
     return Promise.reject(normalizeError);
   },
 );
+
+export default httpClient;
