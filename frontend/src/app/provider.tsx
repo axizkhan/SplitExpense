@@ -1,4 +1,3 @@
-import React from "react";
 import type { ReactNode } from "react";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import { QueryClientProvider } from "@tanstack/react-query";

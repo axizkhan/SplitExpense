@@ -49,11 +49,12 @@ httpClient.interceptors.response.use(
       status,
     };
 
-    if (data) {
+    if (data && typeof data === "object") {
+      const typedData = data as Record<string, any>;
       normalizeError.message =
-        data.message || data.error?.message || normalizeError.message;
+        typedData.message || typedData.error?.message || normalizeError.message;
 
-      normalizeError.code = data?.error?.code;
+      normalizeError.code = typedData?.error?.code;
     }
 
     if (status === 401) {

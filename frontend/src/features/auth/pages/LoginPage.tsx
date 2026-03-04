@@ -1,17 +1,15 @@
-import React from "react";
 import { Heading } from "@chakra-ui/react";
 import { Link } from "@chakra-ui/react";
 import { Field, Input } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
 import { Text } from "@chakra-ui/react";
 import { RiArrowRightLine } from "react-icons/ri";
-import { withMask } from "use-mask-input";
 import { useLogin } from "../hooks";
 import { useState } from "react";
 // import WalletLogo from "../../logo/WalletLogo";
 
 function LoginPage() {
-  const { mutate, error, isPending } = useLogin();
+  const { mutate, isPending } = useLogin();
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -57,9 +55,10 @@ function LoginPage() {
               Password <Field.RequiredIndicator />
             </Field.Label>
             <Input
-              placeholder="Enter your email"
+              placeholder="Enter your password"
+              type="password"
               value={password}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
             />
           </Field.Root>
         </div>
@@ -69,8 +68,9 @@ function LoginPage() {
           <Button
             variant="solid"
             className="w-full"
-            disabled={isPending}>
-            Log In <RiArrowRightLine />{" "}
+            disabled={isPending}
+            onClick={handleSubmit}>
+            Log In <RiArrowRightLine />
           </Button>
           {/* login page link */}
           <Text className="">
