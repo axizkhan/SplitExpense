@@ -22,10 +22,10 @@ export interface JournalResponse {
 export const journalRepository = {
   async getJournalEntries(
     journalId: string,
-    pageNumber: number = 1
+    pageNumber: number = 1,
   ): Promise<JournalResponse> {
     const response = await httpClient.get(
-      `/api/auth/journel/${journalId}/${pageNumber}`
+      `/api/auth/journel/${journalId}/${pageNumber}`,
     );
     return response.data.data;
   },

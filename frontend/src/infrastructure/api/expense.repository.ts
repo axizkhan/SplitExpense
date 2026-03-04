@@ -19,11 +19,11 @@ export interface Expense {
 export const expenseRepository = {
   async createExpense(
     payload: ExpensePayload,
-    groupId: string
+    groupId: string,
   ): Promise<Expense> {
     const response = await httpClient.post(
       `/api/auth/expense/${groupId}`,
-      payload
+      payload,
     );
     return response.data.data;
   },
@@ -34,19 +34,17 @@ export const expenseRepository = {
   },
 
   async getUserExpenses(groupId: string): Promise<Expense[]> {
-    const response = await httpClient.get(
-      `/api/auth/expense/user/${groupId}`
-    );
+    const response = await httpClient.get(`/api/auth/expense/user/${groupId}`);
     return response.data.data;
   },
 
   async editExpense(
     expenseId: string,
-    payload: Partial<ExpensePayload>
+    payload: Partial<ExpensePayload>,
   ): Promise<Expense> {
     const response = await httpClient.put(
       `/api/auth/expense/${expenseId}`,
-      payload
+      payload,
     );
     return response.data.data;
   },

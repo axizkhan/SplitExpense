@@ -20,22 +20,36 @@ function ExpenseList() {
   const navigate = useNavigate();
   const { data: expenses = [], isLoading } = useGroupExpenses(groupId || "");
 
-  const totalAmount = expenses.reduce((sum: number, expense: any) => sum + expense.amount, 0);
+  const totalAmount = expenses.reduce(
+    (sum: number, expense: any) => sum + expense.amount,
+    0,
+  );
 
   return (
-    <Box maxWidth="1200px" mx="auto" px={6} py={10}>
+    <Box
+      maxWidth="1200px"
+      mx="auto"
+      px={6}
+      py={10}>
       {/* header  */}
-      <HStack maxWidth="1200px" justifyContent="space-between" mb="10">
+      <HStack
+        maxWidth="1200px"
+        justifyContent="space-between"
+        mb="10">
         {/* back button  */}
         <Button
           variant="outline"
           onClick={() => navigate(-1)}>
           <IoArrowBack />
         </Button>
-        <VStack align="center" gap={1}>
+        <VStack
+          align="center"
+          gap={1}>
           <Heading>Expenses</Heading>
           <Text>All Expenses</Text>
-          <Badge variant="solid" size={"lg"}>
+          <Badge
+            variant="solid"
+            size={"lg"}>
             ₹{totalAmount}
           </Badge>
         </VStack>
@@ -46,20 +60,35 @@ function ExpenseList() {
 
       {/* main contain  */}
       {isLoading ? (
-        <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+        <SimpleGrid
+          columns={{ base: 1, md: 2 }}
+          gap={6}>
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} height="200px" borderRadius="xl" />
+            <Skeleton
+              key={i}
+              height="200px"
+              borderRadius="xl"
+            />
           ))}
         </SimpleGrid>
       ) : expenses.length > 0 ? (
-        <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+        <SimpleGrid
+          columns={{ base: 1, md: 2 }}
+          gap={6}>
           {expenses.map((expense: any) => (
-            <ExpenseCardComponent key={expense._id} expense={expense} />
+            <ExpenseCardComponent
+              key={expense._id}
+              expense={expense}
+            />
           ))}
         </SimpleGrid>
       ) : (
-        <Box textAlign="center" py={10}>
-          <Text color="gray.500" fontSize="lg">
+        <Box
+          textAlign="center"
+          py={10}>
+          <Text
+            color="gray.500"
+            fontSize="lg">
             No expenses yet. Create one to get started!
           </Text>
         </Box>

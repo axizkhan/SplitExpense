@@ -34,7 +34,7 @@ function AddMemberDialog({ groupId }: AddMemberDialogProps) {
             setEmail("");
             setIsOpen(false);
           },
-        }
+        },
       );
     }
   };
@@ -46,7 +46,9 @@ function AddMemberDialog({ groupId }: AddMemberDialogProps) {
       open={isOpen}
       onOpenChange={(e) => setIsOpen(e.open)}>
       <Dialog.Trigger asChild>
-        <Button colorScheme="teal" alignSelf={{ base: "stretch", md: "auto" }}>
+        <Button
+          colorScheme="teal"
+          alignSelf={{ base: "stretch", md: "auto" }}>
           <IoPersonAdd /> Add Member
         </Button>
       </Dialog.Trigger>
@@ -59,7 +61,10 @@ function AddMemberDialog({ groupId }: AddMemberDialogProps) {
               <p>Invite someone to join this group</p>
             </Dialog.Header>
             <Dialog.Body>
-              <VStack justify="space-between" align="center" gap={4}>
+              <VStack
+                justify="space-between"
+                align="center"
+                gap={4}>
                 <Field.Root required>
                   <Field.Label>
                     Email <Field.RequiredIndicator />

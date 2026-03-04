@@ -25,7 +25,10 @@ function Journel() {
   const { groupId } = useParams<{ groupId: string }>();
   const { user } = useAuth();
   const [pageNumber, setPageNumber] = useState(1);
-  const { data: journalData, isLoading } = useJournalEntries(groupId || "", pageNumber);
+  const { data: journalData, isLoading } = useJournalEntries(
+    groupId || "",
+    pageNumber,
+  );
 
   const userName = user?.firstName || "User";
 
@@ -39,13 +42,21 @@ function Journel() {
         gap={6}
         mb={8}>
         {/* User Info */}
-        <HStack align="center" gap={4}>
-          <Icon boxSize={10} color="teal.500">
+        <HStack
+          align="center"
+          gap={4}>
+          <Icon
+            boxSize={10}
+            color="teal.500">
             <FaUser />
           </Icon>
-          <VStack align="start" gap={0}>
+          <VStack
+            align="start"
+            gap={0}>
             <Heading size="lg">{userName}</Heading>
-            <Text fontSize="sm" color="gray.500">
+            <Text
+              fontSize="sm"
+              color="gray.500">
               Member of this group
             </Text>
           </VStack>
@@ -54,7 +65,9 @@ function Journel() {
         {/* Settlement Card */}
         <Card.Root w={{ base: "full", md: "350px" }}>
           <Card.Body>
-            <Text fontSize="sm" color="gray.500">
+            <Text
+              fontSize="sm"
+              color="gray.500">
               SETTLEMENT SUMMARY
             </Text>
 
@@ -78,42 +91,73 @@ function Journel() {
       </Stack>
 
       {/*  Main Body */}
-      <SimpleGrid columns={{ base: 1, lg: 3 }} gap={8} alignItems="start">
+      <SimpleGrid
+        columns={{ base: 1, lg: 3 }}
+        gap={8}
+        alignItems="start">
         {/* Transaction History */}
-        <VStack align="start" gap={6} gridColumn={{ lg: "span 2" }}>
+        <VStack
+          align="start"
+          gap={6}
+          gridColumn={{ lg: "span 2" }}>
           <Heading size="md">Transaction History</Heading>
 
           {isLoading ? (
-            <VStack w="full" gap={4}>
+            <VStack
+              w="full"
+              gap={4}>
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} height="100px" w="full" borderRadius="xl" />
+                <Skeleton
+                  key={i}
+                  height="100px"
+                  w="full"
+                  borderRadius="xl"
+                />
               ))}
             </VStack>
           ) : journalData?.entries && journalData.entries.length > 0 ? (
             <>
               {journalData.entries.map((entry: any, idx: number) => (
-                <Card.Root key={idx} w="full">
+                <Card.Root
+                  key={idx}
+                  w="full">
                   <Card.Body>
-                    <HStack justify="space-between" align="start">
-                      <HStack align="start" gap={4}>
-                        <Icon boxSize={8} color="green.500">
+                    <HStack
+                      justify="space-between"
+                      align="start">
+                      <HStack
+                        align="start"
+                        gap={4}>
+                        <Icon
+                          boxSize={8}
+                          color="green.500">
                           <RiMoneyRupeeCircleLine />
                         </Icon>
 
-                        <VStack align="start" gap={1}>
+                        <VStack
+                          align="start"
+                          gap={1}>
                           <Heading size="sm">{entry.description}</Heading>
-                          <Text fontSize="sm" color="gray.500">
-                            {new Date(entry.createdAt).toLocaleDateString()} <LuDot />{" "}
-                            {entry.user?.firstName || "User"}
+                          <Text
+                            fontSize="sm"
+                            color="gray.500">
+                            {new Date(entry.createdAt).toLocaleDateString()}{" "}
+                            <LuDot /> {entry.user?.firstName || "User"}
                           </Text>
                         </VStack>
                       </HStack>
 
-                      <VStack align="end" gap={1}>
-                        <Heading size="sm" color="green.500">
+                      <VStack
+                        align="end"
+                        gap={1}>
+                        <Heading
+                          size="sm"
+                          color="green.500">
                           <LuIndianRupee /> {entry.amount}
                         </Heading>
-                        <Text fontSize="xs" color="green.500">
+                        <Text
+                          fontSize="xs"
+                          color="green.500">
                           {entry.type.toUpperCase()}
                         </Text>
                       </VStack>
@@ -150,7 +194,9 @@ function Journel() {
           shadow="sm">
           <Heading size="md">Quick Actions</Heading>
 
-          <Button variant="outline" colorScheme="teal">
+          <Button
+            variant="outline"
+            colorScheme="teal">
             <MdNotificationsActive />
             Notify Member
           </Button>

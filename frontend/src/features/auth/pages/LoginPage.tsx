@@ -22,7 +22,7 @@ function LoginPage() {
         onSuccess: () => {
           navigate("/dashboard");
         },
-      }
+      },
     );
   };
 

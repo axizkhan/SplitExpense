@@ -27,31 +27,45 @@ function ExpenseCardComponent({ expense }: ExpenseCardProps) {
       cursor="pointer">
       <Card.Body>
         <HStack justify="space-between">
-          <VStack alignSelf="start" align="start">
-            <Text fontWeight="semibold" fontSize="lg">
+          <VStack
+            alignSelf="start"
+            align="start">
+            <Text
+              fontWeight="semibold"
+              fontSize="lg">
               {expense.title}
             </Text>
 
             <HStack gap={2}>
-              <Text fontSize="sm" color="gray.500">
+              <Text
+                fontSize="sm"
+                color="gray.500">
                 Paid by {expense.paidBy}
               </Text>
-              <Text fontSize="xs" color="gray.400">
+              <Text
+                fontSize="xs"
+                color="gray.400">
                 Created: {createdDate}
               </Text>
             </HStack>
 
             {expense.description && (
-              <Text fontSize="sm" color="gray.500">
+              <Text
+                fontSize="sm"
+                color="gray.500">
                 {expense.description}
               </Text>
             )}
           </VStack>
           <HStack>
-            <Heading display="flex" alignItems="center">
+            <Heading
+              display="flex"
+              alignItems="center">
               <MdOutlineCurrencyRupee /> {expense.amount}
             </Heading>
-            <Button variant="outline" size="xs">
+            <Button
+              variant="outline"
+              size="xs">
               <BsThreeDotsVertical />
             </Button>
           </HStack>

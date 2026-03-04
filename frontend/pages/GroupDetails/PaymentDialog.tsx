@@ -45,7 +45,7 @@ function PaymentDialog({
             setAmount("");
             setIsOpen(false);
           },
-        }
+        },
       );
     }
   };
@@ -77,7 +77,10 @@ function PaymentDialog({
             <Alert.Root status={isOwing ? "error" : "success"}>
               <Alert.Indicator />
               <Alert.Title>
-                Current Balance: {isOwing ? `You owe ₹${balance}` : `You are owed ₹${Math.abs(balance)}`}
+                Current Balance:{" "}
+                {isOwing
+                  ? `You owe ₹${balance}`
+                  : `You are owed ₹${Math.abs(balance)}`}
               </Alert.Title>
             </Alert.Root>
             <Dialog.Body>

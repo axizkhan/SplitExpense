@@ -36,7 +36,7 @@ export const userRepository = {
 
   async addMember(
     groupId: string,
-    payload: { newMemberEmail: string }
+    payload: { newMemberEmail: string },
   ): Promise<void> {
     await httpClient.put(`/api/auth/group/${groupId}`, payload);
   },

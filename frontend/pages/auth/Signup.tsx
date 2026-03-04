@@ -28,8 +28,7 @@ function Signup() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutate(
-      formData as any, {
+    mutate(formData as any, {
       onSuccess: () => {
         navigate("/dashboard");
       },

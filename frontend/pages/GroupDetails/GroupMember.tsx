@@ -24,21 +24,38 @@ function GroupMember() {
 
   if (isLoading) {
     return (
-      <Box px={6} py={6}>
-        <Skeleton height="40px" mb={6} />
-        <SimpleGrid columns={{ base: 1, sm: 2, lg: 3 }} gap={6} mb={10}>
+      <Box
+        px={6}
+        py={6}>
+        <Skeleton
+          height="40px"
+          mb={6}
+        />
+        <SimpleGrid
+          columns={{ base: 1, sm: 2, lg: 3 }}
+          gap={6}
+          mb={10}>
           {[1, 2, 3].map((i) => (
-            <Skeleton key={i} height="150px" borderRadius="xl" />
+            <Skeleton
+              key={i}
+              height="150px"
+              borderRadius="xl"
+            />
           ))}
         </SimpleGrid>
-        <Skeleton height="300px" borderRadius="xl" />
+        <Skeleton
+          height="300px"
+          borderRadius="xl"
+        />
       </Box>
     );
   }
 
   if (!groupDetails) {
     return (
-      <Box px={6} py={6}>
+      <Box
+        px={6}
+        py={6}>
         <Text>Group not found</Text>
       </Box>
     );
@@ -66,7 +83,9 @@ function GroupMember() {
   ];
 
   return (
-    <Box px={6} py={6}>
+    <Box
+      px={6}
+      py={6}>
       {/* Header */}
       <Stack
         direction={{ base: "column", md: "row" }}
@@ -81,7 +100,9 @@ function GroupMember() {
             onClick={() => navigate("/dashboard")}>
             <IoArrowBack />
           </Button>
-          <VStack align="start" gap={1}>
+          <VStack
+            align="start"
+            gap={1}>
             <Heading size="lg">{groupDetails.group?.name}</Heading>
             <Text color="gray.400">Financial Ledger</Text>
           </VStack>
@@ -96,18 +117,26 @@ function GroupMember() {
         gap={6}
         mb={10}>
         {summaryCards.map((card, i) => (
-          <GroupSummaryCard key={i} i={i} card={card} />
+          <GroupSummaryCard
+            key={i}
+            i={i}
+            card={card}
+          />
         ))}
       </SimpleGrid>
 
       {/* MEMBER CARDS */}
       <Box>
-        <Heading size="md" mb={6}>
+        <Heading
+          size="md"
+          mb={6}>
           Ledger Details
         </Heading>
 
         {groupDetails.balances && groupDetails.balances.length > 0 ? (
-          <SimpleGrid columns={{ base: 1, md: 2 }} gap={6}>
+          <SimpleGrid
+            columns={{ base: 1, md: 2 }}
+            gap={6}>
             {groupDetails.balances.map((balance: any, i: number) => (
               <Box key={i}>
                 <GroupMemberCard

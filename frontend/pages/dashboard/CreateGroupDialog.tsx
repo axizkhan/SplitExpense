@@ -22,15 +22,16 @@ function CreateGroupDialog() {
 
   const { mutate, isPending } = useCreateGroup();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = () => {
     if (formData.name.trim()) {
-      mutate(
-        formData as any, {
+      mutate(formData as any, {
         onSuccess: () => {
           setFormData({ name: "", description: "" });
           setIsOpen(false);

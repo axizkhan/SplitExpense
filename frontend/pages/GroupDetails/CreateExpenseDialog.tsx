@@ -25,7 +25,9 @@ function CreateExpenseDialog() {
 
   const { mutate, isPending } = useCreateExpense();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -46,7 +48,7 @@ function CreateExpenseDialog() {
             setFormData({ title: "", amount: "", description: "" });
             setIsOpen(false);
           },
-        }
+        },
       );
     }
   };
