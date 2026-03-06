@@ -6,12 +6,21 @@ export interface ExpensePayload {
   amount: number;
 }
 
+export interface UserInfo {
+  _id: string;
+  name: {
+    firstName: string;
+    lastName: string;
+  };
+  email: string;
+}
+
 export interface Expense {
   _id: string;
   title: string;
   description?: string;
   amount: number;
-  paidBy: string;
+  paidBy: string | UserInfo;
   splitBetween: string[];
   createdAt: string;
 }

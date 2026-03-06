@@ -96,7 +96,6 @@ export class JournelServices {
         totalEnetryCount: totalEnetryCount[0]?.entryCount || 0,
       };
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }
@@ -154,7 +153,6 @@ export class JournelServices {
         totalEntryCount: totalEntryCount[0]?.totalCount || 0,
       };
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }
@@ -226,7 +224,6 @@ export class JournelServices {
         totalEntryCount: totalEntryCount[0]?.entryCount || 0,
       };
     } catch (error) {
-      console.log(error);
       throw error;
     }
   }

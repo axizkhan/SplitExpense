@@ -32,7 +32,7 @@ export const groupRepository = {
 
   async getGroup(groupId: string): Promise<GroupDetails> {
     const response = await httpClient.get(`/api/auth/group/${groupId}`);
-    console.log(response.data, "Response data");
+
     return response.data.data;
   },
 
@@ -49,5 +49,9 @@ export const groupRepository = {
     payload: { newMemberEmail: string },
   ): Promise<void> {
     await httpClient.put(`/api/auth/group/${groupId}`, payload);
+  },
+
+  async deleteGroup(groupId: string): Promise<void> {
+    await httpClient.delete(`/api/auth/group/${groupId}`);
   },
 };

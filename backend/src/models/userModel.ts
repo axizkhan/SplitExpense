@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IAccountType, IUser } from "../types/userModel";
+import { IAccountType, IUser } from "../types/userModel.js";
 const { Schema } = mongoose;
 
 let accountSchema = new Schema<IAccountType>({

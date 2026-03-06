@@ -22,7 +22,6 @@ export class ExpenseService {
     groupId: string,
     userId: string,
   ) {
-    console.log("add expense got request");
     const group = await Group.findOne({
       _id: groupId,
       "members.memberId": userId,
@@ -47,6 +46,7 @@ export class ExpenseService {
     let averageExpense = expense.amount / group.members.length;
     let creatorAmount = averageExpense * (group.members.length - 1);
 
+    // Create entries and journals for all borrowers
     for (let member of group.members) {
       let borowerId = member.memberId.toString();
       if (borowerId !== userId) {
@@ -93,24 +93,53 @@ export class ExpenseService {
             journel._id.toString(),
           );
         }
-
-        member.amountOwed += averageExpense;
-      } else {
-        member.amountToBeRecieved += creatorAmount;
       }
     }
 
-    let result = await Group.findOneAndReplace({ _id: group._id }, group);
+    // Update borrower members with $inc (atomic operation)
+    await Group.updateMany(
+      {
+        _id: groupId,
+        "members.memberId": { $ne: new mongoose.Types.ObjectId(userId) },
+      },
+      {
+        $inc: {
+          "members.$[borrower].amountOwed": averageExpense,
+        },
+      },
+      {
+        arrayFilters: [
+          { "borrower.memberId": { $ne: new mongoose.Types.ObjectId(userId) } },
+        ],
+      },
+    );
 
-    if (result) {
-      return result;
+    // Update creator with $inc (atomic operation)
+    await Group.updateOne(
+      { _id: groupId },
+      {
+        $inc: {
+          "members.$[creator].amountToBeRecieved": creatorAmount,
+        },
+      },
+      {
+        arrayFilters: [
+          { "creator.memberId": new mongoose.Types.ObjectId(userId) },
+        ],
+      },
+    );
+
+    if (createdExpense) {
+      return createdExpense;
     }
 
     throw new InternalServerError();
   }
   async getAllExpense(groupId: string) {
     try {
-      let result = await Expense.find({ groupId }).sort({ _id: -1 });
+      let result = await Expense.find({ groupId })
+        .populate("paidBy", "name.firstName name.lastName email")
+        .sort({ _id: -1 });
       return result;
     } catch (err) {
       throw err;
@@ -119,20 +148,22 @@ export class ExpenseService {
 
   async getAllUserExpense(groupId: string, userId: string) {
     try {
-      let result = await Expense.find({ groupId, paidBy: userId }).sort({
-        _id: -1,
-      });
+      let result = await Expense.find({ groupId, paidBy: userId })
+        .populate("paidBy", "name.firstName name.lastName email")
+        .sort({
+          _id: -1,
+        });
       return result;
     } catch (err) {
       throw err;
     }
   }
 
-  async updateUserExpense(expenseId: string, difference: number) {
+  async updateUserExpense(expenseId: string, newAmount: number) {
     try {
       let result = await Expense.findOneAndUpdate(
         { _id: expenseId },
-        { $inc: { amount: difference } },
+        { amount: newAmount },
         { new: true },
       );
       return result;

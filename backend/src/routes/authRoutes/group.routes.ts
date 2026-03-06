@@ -15,5 +15,6 @@ export class GroupRouter {
     this.groupRouter.post("/", this.groupController.createGroup);
     this.groupRouter.put("/:groupId", this.groupController.addMemberInGroup);
     this.groupRouter.get("/:groupId", this.groupController.getGroupDetails);
+    this.groupRouter.delete("/:groupId", this.groupController.deleteGroup);
   }
 }

@@ -2,7 +2,8 @@ import type { ReactNode } from "react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./queryClient";
-import customSystem from "./theme";
+import { darkTheme } from "./themeConfig";
+import { Toaster } from "@/components/ui/toaster";
 
 interface ProviderProps {
   children: ReactNode;
@@ -11,7 +12,10 @@ interface ProviderProps {
 function Providers({ children }: ProviderProps) {
   return (
     <QueryClientProvider client={queryClient}>
-      <ChakraProvider value={customSystem}>{children}</ChakraProvider>
+      <ChakraProvider value={darkTheme}>
+        {children}
+        <Toaster />
+      </ChakraProvider>
     </QueryClientProvider>
   );
 }

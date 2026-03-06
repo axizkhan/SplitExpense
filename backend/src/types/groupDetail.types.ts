@@ -24,17 +24,20 @@ export type BalanceResponse = {
 export type GroupSummaryResponse = {
   group:
     | {
-        groupName?: string;
+        _id: string;
+        name: string;
         description?: string;
-        groupId?: Types.ObjectId | string; // ObjectId as string
-        totalExpense?: number;
+        members: string[];
+        createdBy: string;
+        createdAt: string;
       }
     | "";
   balances: Array<BalanceResponse>;
   userData:
     | {
-        amountOwed: number;
-        amountToBeRecieved: number;
+        totalSpent: number;
+        youOwe: number;
+        youWillReceive: number;
       }
     | "";
 };

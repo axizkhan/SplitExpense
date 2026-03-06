@@ -33,8 +33,6 @@ export class PaymentController {
         amount,
       );
 
-      console.log(newPayment, "**************************NEW PAYMENT");
-
       let newEntry = await this.entryService.createPaymentEntry(
         req.user.id,
         paidToId,
@@ -43,8 +41,6 @@ export class PaymentController {
         newPayment._id.toString(),
       );
 
-      console.log(newEntry, "************************NEW ENTRY");
-
       let journelUpdate = await this.journelService.isJournelExistThanAddEntry(
         groupId,
         req.user.id,
@@ -52,7 +48,6 @@ export class PaymentController {
         newEntry._id.toString(),
       );
 
-      console.log(journelUpdate, "********************JOURNEL UPDATE");
       if (!journelUpdate) {
         throw new UnprocessableEntity("No Expense In Group");
       }
@@ -64,7 +59,14 @@ export class PaymentController {
         amount,
       );
 
-      console.log(updatedBalance, "**************************UPDATE BALANCE");
+      // Update Group model member fields to reflect payment
+      // Reduce paidBy user's amountOwed and paidTo user's amountToBeRecieved
+      await this.groupService.updateGroupMemberBalances(
+        groupId,
+        req.user.id,
+        paidToId,
+        amount,
+      );
 
       req.resData = {
         message: "Payment Done Successfully",

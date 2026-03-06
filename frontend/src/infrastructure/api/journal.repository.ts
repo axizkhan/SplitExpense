@@ -1,4 +1,5 @@
 import httpClient from "@/core/http/httpClient";
+import type { JournalResponse } from "@/features/journal/types/journal";
 
 export interface JournalEntry {
   _id: string;
@@ -11,12 +12,6 @@ export interface JournalEntry {
     firstName: string;
     lastName: string;
   };
-}
-
-export interface JournalResponse {
-  entries: JournalEntry[];
-  totalPages: number;
-  currentPage: number;
 }
 
 export const journalRepository = {

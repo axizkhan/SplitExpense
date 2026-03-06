@@ -27,11 +27,13 @@ interface AuthResponse {
 export const authRepository = {
   async login(payload: LoginPayload): Promise<AuthResponse> {
     const response = await httpClient.post("/api/user/login-local", payload);
-    return response.data.data;
+    const extracted = response.data.data as AuthResponse;
+    return extracted;
   },
 
   async signup(payload: SignupPayload): Promise<AuthResponse> {
     const response = await httpClient.post("/api/user/signup-local", payload);
-    return response.data.data;
+    const extracted = response.data.data as AuthResponse;
+    return extracted;
   },
 };

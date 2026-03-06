@@ -131,4 +131,55 @@ export class GroupService {
       throw err;
     }
   }
+
+  async updateGroupMemberBalances(
+    groupId: string,
+    paidById: string,
+    paidToId: string,
+    amount: number,
+  ) {
+    try {
+      const paidByObjectId = new mongoose.Types.ObjectId(paidById);
+      const paidToObjectId = new mongoose.Types.ObjectId(paidToId);
+
+      // Reduce paidBy user's amountOwed and paidTo user's amountToBeRecieved
+      const result = await Group.updateOne(
+        { _id: groupId },
+        {
+          $inc: {
+            "members.$[payer].amountOwed": -amount,
+            "members.$[receiver].amountToBeRecieved": -amount,
+          },
+        },
+        {
+          arrayFilters: [
+            { "payer.memberId": paidByObjectId },
+            { "receiver.memberId": paidToObjectId },
+          ],
+        },
+      );
+
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async deleteGroup(groupId: string, userId: string) {
+    try {
+      const group = await Group.findOne({
+        _id: groupId,
+        createdBy: new mongoose.Types.ObjectId(userId),
+      });
+
+      if (!group) {
+        return null;
+      }
+
+      const result = await Group.deleteOne({ _id: groupId });
+      return result;
+    } catch (err) {
+      throw err;
+    }
+  }
 }

@@ -90,22 +90,24 @@ export class BalanceService {
     member: number,
   ) {
     try {
-      let averageExpense = difference / member;
+      const averageExpense = difference / member;
       const userObjectId = new mongoose.Types.ObjectId(userId);
 
-      // Update creator's balance entries (increase receivedAmount)
-      await BalanceModel.updateMany(
-        { groupId, "balances.userId": userObjectId },
-        { $inc: { "balances.$[elem].receivedAmount": averageExpense } },
-        { arrayFilters: [{ "elem.userId": userObjectId }] },
-      );
-
-      // Update all other members' balance entries (decrease receivedAmount)
-      // IMPORTANT: Must also check for creator's userId in the document to avoid updating unrelated transactions
+      // Single query to update both payer and members correctly
       const result = await BalanceModel.updateMany(
-        { groupId, "balances.userId": userObjectId },
-        { $inc: { "balances.$[elem].receivedAmount": -averageExpense } },
-        { arrayFilters: [{ "elem.userId": { $ne: userObjectId } }] },
+        { groupId },
+        {
+          $inc: {
+            "balances.$[payer].receivedAmount": averageExpense * (member - 1),
+            "balances.$[others].receivedAmount": -averageExpense,
+          },
+        },
+        {
+          arrayFilters: [
+            { "payer.userId": userObjectId },
+            { "others.userId": { $ne: userObjectId } },
+          ],
+        },
       );
 
       return result;
@@ -121,13 +123,26 @@ export class BalanceService {
     amount: number,
   ) {
     try {
-      let result = await BalanceModel.findOneAndUpdate(
+      // Update both paidBy and paidTo balances atomically
+      // paidBy gets +amount (they paid, so they owe less)
+      // paidTo gets -amount (they received payment, so they receive less)
+      const paidByObjectId = new mongoose.Types.ObjectId(paidById);
+      const paidToObjectId = new mongoose.Types.ObjectId(paidToId);
+
+      let result = await BalanceModel.updateMany(
+        { groupId },
         {
-          groupId,
-          "balances.userId": { $all: [paidById, paidToId] },
+          $inc: {
+            "balances.$[payer].receivedAmount": amount,
+            "balances.$[receiver].receivedAmount": -amount,
+          },
         },
-        { $inc: { "balances.$[paidby].receivedAmount": amount } },
-        { arrayFilters: [{ "paidby.userId": paidById }] },
+        {
+          arrayFilters: [
+            { "payer.userId": paidByObjectId },
+            { "receiver.userId": paidToObjectId },
+          ],
+        },
       );
 
       return result;

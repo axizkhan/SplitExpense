@@ -101,57 +101,75 @@ export class ExpenseController {
     if (req.user) {
       const { expenseId } = req.params;
       const { newExpenseAmount } = req.body;
-      // const { groupId } = req.body;
       let expense = await this.expenseService.getExpense(expenseId as string);
       let groupId;
-      if (expense?.groupId) {
+      if (
+        expense?.groupId &&
+        expense.amount !== null &&
+        expense.amount !== undefined
+      ) {
         groupId = expense.groupId.toString();
         let groupMember = await this.groupService.getMemberCount(groupId);
-        let difference: number;
-        let updatedExpense: any;
-        let updatedEntery: any;
-        let updatedBalance: any;
-        let updatedGroup: any;
-        if (expense?.amount) {
-          difference = newExpenseAmount - expense.amount;
-          updatedExpense = await this.expenseService.updateUserExpense(
-            expenseId as string,
-            difference,
-          );
-        } else {
-          throw new NotFound();
-        }
+        const memberCount = groupMember[0].memberCount;
+        const oldAmount = expense.amount;
 
-        if (updatedExpense) {
-          updatedEntery = await this.entryService.updateEntry(
+        try {
+          // Step 1: Reverse the old expense
+          await this.entryService.updateEntry(
             expenseId as string,
-            difference,
-            groupMember[0].memberCount,
+            -oldAmount,
+            memberCount,
           );
-          updatedBalance = await this.balanceService.updateUserBalance(
+          await this.balanceService.updateUserBalance(
             groupId as string,
             req.user.id,
-            difference,
-            groupMember[0].memberCount,
+            -oldAmount,
+            memberCount,
           );
-          updatedGroup = await this.groupService.userExpenseEdit(
+          await this.groupService.userExpenseEdit(
             groupId as string,
             req.user.id,
-            difference,
-            groupMember[0].memberCount,
+            -oldAmount,
+            memberCount,
+          );
+
+          // Step 2: Apply the new expense
+          await this.entryService.updateEntry(
+            expenseId as string,
+            newExpenseAmount,
+            memberCount,
+          );
+          await this.balanceService.updateUserBalance(
+            groupId as string,
+            req.user.id,
+            newExpenseAmount,
+            memberCount,
+          );
+          await this.groupService.userExpenseEdit(
+            groupId as string,
+            req.user.id,
+            newExpenseAmount,
+            memberCount,
+          );
+
+          // Step 3: Update the expense amount directly
+          const updatedExpense = await this.expenseService.updateUserExpense(
+            expenseId as string,
+            newExpenseAmount,
           );
 
           req.resData = {
             statusCode: 200,
             message: "Expense Updated Successfully",
-            data: "",
+            data: updatedExpense,
           };
 
           return next();
+        } catch (err) {
+          throw err;
         }
-        throw new NotFound();
       }
-      throw new Error();
+      throw new NotFound();
     }
     throw new Unauthorized();
   };
@@ -162,54 +180,57 @@ export class ExpenseController {
 
       let expense = await this.expenseService.getExpense(expenseId as string);
 
-      if (!expense) {
+      if (
+        !expense ||
+        expense.groupId === null ||
+        expense.groupId === undefined
+      ) {
         throw new NotFound();
       }
-      if (expense.groupId) {
-        let groupId = expense.groupId.toString();
-        let groupMember = await this.groupService.getMemberCount(groupId);
-        let expenseAmount: number;
-        let updatedExpense: any;
-        let updatedEntery: any;
-        let updatedBalance: any;
-        let updatedGroup: any;
-        if (expense?.amount) {
-          expenseAmount = expense.amount;
-        } else {
-          throw new NotFound();
-        }
 
-        if (expense) {
-          updatedEntery = await this.entryService.updateEntry(
-            expenseId as string,
-            -expenseAmount,
-            groupMember[0].memberCount,
-          );
-          updatedBalance = await this.balanceService.updateUserBalance(
-            groupId as string,
-            req.user.id,
-            -expenseAmount,
-            groupMember[0].memberCount,
-          );
-          updatedGroup = await this.groupService.userExpenseEdit(
-            groupId as string,
-            req.user.id,
-            -expenseAmount,
-            groupMember[0].memberCount,
-          );
+      if (expense.amount === null || expense.amount === undefined) {
+        throw new NotFound();
+      }
 
-          updatedExpense = await this.expenseService.deleteExpense(
-            expenseId as string,
-          );
+      let groupId = expense.groupId.toString();
+      let groupMember = await this.groupService.getMemberCount(groupId);
+      const memberCount = groupMember[0].memberCount;
+      const expenseAmount = expense.amount;
 
-          req.resData = {
-            statusCode: 200,
-            message: "Expense Deleted Successfully",
-            data: "",
-          };
+      try {
+        // Reverse the expense effect once
+        await this.entryService.updateEntry(
+          expenseId as string,
+          -expenseAmount,
+          memberCount,
+        );
+        await this.balanceService.updateUserBalance(
+          groupId as string,
+          req.user.id,
+          -expenseAmount,
+          memberCount,
+        );
+        await this.groupService.userExpenseEdit(
+          groupId as string,
+          req.user.id,
+          -expenseAmount,
+          memberCount,
+        );
 
-          return next();
-        }
+        // Delete the expense
+        const deletedExpense = await this.expenseService.deleteExpense(
+          expenseId as string,
+        );
+
+        req.resData = {
+          statusCode: 200,
+          message: "Expense Deleted Successfully",
+          data: deletedExpense,
+        };
+
+        return next();
+      } catch (err) {
+        throw err;
       }
     }
     throw new Unauthorized();

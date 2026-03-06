@@ -24,7 +24,6 @@ export class PassportStrategy {
               });
             }
 
-            console.log(user, "USER");
             const isPasswordMatched =
               await this.hashUtil.hashPasswordComparison(
                 password,
@@ -37,7 +36,9 @@ export class PassportStrategy {
               });
             }
 
-            return done(null, user, { message: "LoggedIn" });
+            return done(null, user as unknown as Express.User, {
+              message: "LoggedIn",
+            });
           } catch (error) {
             throw error;
           }

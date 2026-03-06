@@ -37,7 +37,7 @@ export class GroupController {
       };
 
       req.resData = resObj;
-      next();
+      return next();
     }
     throw new Unauthorized();
   };
@@ -115,24 +115,26 @@ export class GroupController {
 
       // Extract member data and store member details for later
       for (const member of group.members || []) {
-        const memberId = member.memberId._id.toString();
+        const memberId = (member.memberId as any)._id.toString();
 
         if (memberId === userId) {
           sanitizeData.userData = {
-            amountOwed: member.amountOwed,
-            amountToBeRecieved: member.amountToBeRecieved,
+            totalSpent: group.totalAmount || 0,
+            youOwe: member.amountOwed,
+            youWillReceive: member.amountToBeRecieved,
           };
         } else {
           memberIds.push(memberId);
           // Store member details for members without balances
+          const memberObj = member.memberId as any;
           memberDetailsMap[memberId] = {
             name: {
-              firstName: member.memberId.name?.firstName || "",
-              lastName: member.memberId.name?.lastName || "",
+              firstName: memberObj.name?.firstName || "",
+              lastName: memberObj.name?.lastName || "",
             },
-            _id: member.memberId._id,
-            mobileNumber: member.memberId.mobileNumber,
-            upiId: member.memberId.upiId,
+            _id: memberObj._id,
+            mobileNumber: memberObj.mobileNumber,
+            upiId: memberObj.upiId,
           };
         }
       }
@@ -150,12 +152,19 @@ export class GroupController {
         memberBalanceData = balances || [];
       }
 
-      // Group summary
+      // Group summary - Map to frontend expected structure
       sanitizeData.group = {
-        groupName: group.name,
-        description: group.description,
-        groupId: group._id,
-        totalExpense: group.totalAmount,
+        _id: group._id?.toString() || "",
+        name: group.name || "",
+        description: group.description || "",
+        members:
+          group.members?.map((m: any) => m.memberId?._id?.toString() || "") ||
+          [],
+        createdBy: group.createdBy?.toString() || "",
+        createdAt:
+          (group.createdAt instanceof Date
+            ? group.createdAt.toISOString()
+            : "") || "",
       };
 
       // Track which members have been processed
@@ -201,7 +210,7 @@ export class GroupController {
           const sanitizedMemberBalance: BalanceResponse = {
             _id: new mongoose.Types.ObjectId(),
             JournelId: new mongoose.Types.ObjectId(),
-            groupId: groupId,
+            groupId: new mongoose.Types.ObjectId(groupId as string),
             memberAmount: 0,
             userAmount: 0,
             userId: userId,
@@ -220,7 +229,36 @@ export class GroupController {
 
       return next();
     } catch (error) {
-      console.log(error);
+      return next(error);
+    }
+  };
+
+  deleteGroup = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!req.user) {
+        throw new Unauthorized();
+      }
+
+      const { groupId } = req.params;
+      const userId = req.user.id;
+
+      const result = await this.groupService.deleteGroup(
+        groupId as string,
+        userId,
+      );
+
+      if (!result) {
+        throw new Unauthorized("Only the group creator can delete this group");
+      }
+
+      req.resData = {
+        statusCode: 200,
+        message: "Group deleted successfully",
+        data: {},
+      };
+
+      return next();
+    } catch (error) {
       return next(error);
     }
   };
