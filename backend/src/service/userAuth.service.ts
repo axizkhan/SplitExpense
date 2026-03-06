@@ -1,7 +1,7 @@
 import { Conflict } from "../error/httpClientError";
 import { UserModel } from "../models/userModel";
 import { User } from "../types/user";
-import { IUser } from "../types/userModel";
+import { IUser } from "../types/userModel.js";
 
 export class UserAuthServices {
   async userLocalSignup(user: User) {
@@ -23,10 +23,10 @@ export class UserAuthServices {
     if (user.upiId) {
       userDocument.upiId = user.upiId;
     }
-
     try {
-      await UserModel.insertOne(userDocument);
-      return "User Login Successfully";
+      let newUser = await UserModel.create(userDocument);
+
+      return newUser;
     } catch (err) {
       throw new Conflict("Email Already Exist", "USER_EXIST");
     }

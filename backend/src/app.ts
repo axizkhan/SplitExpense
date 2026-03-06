@@ -1,4 +1,5 @@
 import express, { Application } from "express";
+import cors from "cors";
 import { RouteHandler } from "./routes";
 import { ResponseSenderMiddleware } from "./middleware/reponseSenderMiddleware";
 import { ErrorHandler } from "./middleware/errorHandlingMiddleware";
@@ -19,6 +20,16 @@ export class App {
   }
 
   middlewareInitializer() {
+    // CORS Configuration
+    const corsOptions = {
+      origin: process.env.FRONTEND_URL || "http://localhost:5173",
+      credentials: true,
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"],
+      optionsSuccessStatus: 200,
+    };
+
+    this.app.use(cors(corsOptions));
     this.app.use(express.json());
     this.app.use(cookieParser());
     this.app.use("/api/auth", passport.authenticate("jwt", { session: false }));

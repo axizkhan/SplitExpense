@@ -1,3 +1,4 @@
+/// <reference path="../types/express.d.ts" />
 import { Request, Response, NextFunction } from "express";
 import { HashingUtil } from "../utils/hashing.util";
 import passport from "passport";
@@ -22,18 +23,34 @@ export class UserAuthController {
     const hashPassword = await this.hashingUtliFunctions.hashPassword(
       user.password,
     );
+
     user.password = hashPassword;
-    let data = await this.userAuthService.userLocalSignup(user);
 
-    const resData = {
-      data,
-      message: "User login successfully",
-      statusCode: 201,
-    };
+    let newUser = await this.userAuthService.userLocalSignup(user);
 
-    req.resData = resData;
+    try {
+      const accessToken = await this.jwt.grantAccessToken(newUser._id);
 
-    next();
+      const resData = {
+        data: {
+          user: {
+            id: newUser._id,
+            email: newUser.emailId,
+            firstName: newUser.name?.firstName || "",
+            lastName: newUser.name?.lastName || "",
+          },
+          accessToken,
+        },
+        message: "User signup successfully",
+        statusCode: 201,
+      };
+
+      req.resData = resData;
+
+      next();
+    } catch (error) {
+      next(error);
+    }
   };
 
   userLocalLogin = async (req: Request, res: Response, next: NextFunction) => {
@@ -41,23 +58,52 @@ export class UserAuthController {
       "local",
       { session: false },
       async (err: Error, user: any, info: any) => {
-        console.log("Inside passport inner function");
-        if (err || !user) {
-          throw new Unauthorized(
-            "Either password or email is incorrect",
-            "PASSWORD_OR_EMAIL_INCORRECT",
-          );
-        }
-
-        req.login(user, { session: false }, (err) => {
-          if (err)
-            throw new Unauthorized(
-              "Either password or email is incorrect",
-              "PASSWORD_OR_EMAIL_INCORRECT",
+        try {
+          if (err || !user) {
+            return next(
+              new Unauthorized(
+                "Either password or email is incorrect",
+                "PASSWORD_OR_EMAIL_INCORRECT",
+              ),
             );
-        });
-        const token = await this.jwt.grantAccessToken(user);
-        res.send(token);
+          }
+
+          req.login(user, { session: false }, async (loginErr) => {
+            if (loginErr) {
+              return next(
+                new Unauthorized(
+                  "Either password or email is incorrect",
+                  "PASSWORD_OR_EMAIL_INCORRECT",
+                ),
+              );
+            }
+
+            try {
+              const accessToken = await this.jwt.grantAccessToken(user._id);
+
+              const resData = {
+                data: {
+                  user: {
+                    id: user._id,
+                    email: user.emailId,
+                    firstName: user.name?.firstName || "",
+                    lastName: user.name?.lastName || "",
+                  },
+                  accessToken,
+                },
+                message: "User login successfully",
+                statusCode: 200,
+              };
+
+              req.resData = resData;
+              next();
+            } catch (tokenErr) {
+              next(tokenErr);
+            }
+          });
+        } catch (error) {
+          next(error);
+        }
       },
     )(req, res, next);
   };
