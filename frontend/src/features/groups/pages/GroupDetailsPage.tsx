@@ -7,7 +7,7 @@ import { GroupSummaryCards } from "@/features/groups/components";
 import { GroupTabs } from "@/features/groups/components";
 import { MembersTabContent } from "@/components/common";
 import { ExpensesTabContent } from "@/features/expenses/components";
-import { DeleteGroupDialog } from "@/features/groups/components";
+import { DeleteGroupDialog } from "@/features/groups/components"; m 
 import { useGroupDetails } from "@/features/groups/hooks";
 import { useGroupExpenses } from "@/features/groups/hooks-expense";
 

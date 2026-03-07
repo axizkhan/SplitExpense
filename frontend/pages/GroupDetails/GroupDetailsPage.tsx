@@ -1,7 +1,7 @@
 import { Box, SimpleGrid, Skeleton, Text } from "@chakra-ui/react";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import AppBranding from "../../src/components/AppBranding";
+import AppBranding from "../../src/components/common/AppBranding";
 import GroupHeader from "../../src/components/GroupHeader";
 import GroupSummaryCards from "../../src/components/GroupSummaryCards";
 import GroupTabs from "../../src/components/GroupTabs";

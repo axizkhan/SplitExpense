@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { UserAuthController } from "../../controller/userAuth.controller";
+import { UserAuthController } from "../../controller/userAuth.controller.js";
 import passport from "passport";
 export class UserRoute {
   public UserRouter: Router;
@@ -13,6 +13,10 @@ export class UserRoute {
     this.UserRouter.post(
       "/signup-local",
       this.userAuthController.userLocalSignup,
+    );
+    this.UserRouter.get(
+      "/verify-email",
+      this.userAuthController.userLocalVerify,
     );
     this.UserRouter.post(
       "/login-local",

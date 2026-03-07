@@ -1,4 +1,5 @@
 import { Request } from "express";
+import { JwtUser } from "../jwtUser";
 
 declare global {
   namespace Express {
@@ -10,9 +11,10 @@ declare global {
       };
       user?: {
         id: string;
-        iat: number;
-        exp: number;
+        email: string;
       };
     }
   }
 }
+
+export {};
