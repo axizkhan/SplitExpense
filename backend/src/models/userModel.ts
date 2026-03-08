@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { IAccountType, IUser } from "../types/userModel";
+import { IAccountType, IUser } from "../types/userModel.js";
 const { Schema } = mongoose;
 
 let accountSchema = new Schema<IAccountType>({
@@ -17,6 +17,10 @@ const userSchema = new Schema<IUser>({
   },
   mobileNumber: { type: Number },
   upiId: { type: String },
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
   account: accountSchema,
   updatedAt: { type: Date, default: Date.now },
   deletedAt: { type: Date, default: null },

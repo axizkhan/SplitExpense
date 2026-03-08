@@ -12,7 +12,6 @@ export class HashingUtil {
   }
   async hashPasswordComparison(password: string, hashPassword: string) {
     try {
-      console.log(password, hashPassword);
       const isMatch = await bcrypt.compare(password, hashPassword);
 
       return isMatch;

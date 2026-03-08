@@ -1,4 +1,4 @@
-import { Server } from "./server/server";
+import { Server } from "./server/server.js";
 import dotenv from "dotenv";
 
 export class BootStrap {
@@ -10,6 +10,7 @@ export class BootStrap {
     /**uncomment in production to not allowed the setup of application if their is no @PORT in .env */
     // this.validatePort();
     this.PORT = this.loadPort();
+
     this.SERVER = new Server(this.PORT);
   }
 

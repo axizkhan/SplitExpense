@@ -1,8 +1,8 @@
 import passport from "passport";
 import * as LocalStrategy from "passport-local";
-import { UserAuthServices } from "../../service/userAuth.service";
-import { Conflict } from "../../error/httpClientError";
-import { HashingUtil } from "../../utils/hashing.util";
+import { UserAuthServices } from "../../service/userAuth.service.js";
+import { Conflict } from "../../error/httpClientError.js";
+import { HashingUtil } from "../../utils/hashing.util.js";
 
 export class PassportStrategy {
   private userService: UserAuthServices;
@@ -17,7 +17,6 @@ export class PassportStrategy {
         { usernameField: "email", passwordField: "password" },
         async (email, password, done) => {
           try {
-            console.log("passport inner fucntion got request");
             const user = await this.userService.findUserLocalLogin(email);
             if (!user) {
               return done(null, false, {
@@ -25,7 +24,6 @@ export class PassportStrategy {
               });
             }
 
-            console.log(user, "USER");
             const isPasswordMatched =
               await this.hashUtil.hashPasswordComparison(
                 password,
@@ -38,7 +36,9 @@ export class PassportStrategy {
               });
             }
 
-            return done(null, user._id, { message: "LoggedIn" });
+            return done(null, user as unknown as Express.User, {
+              message: "LoggedIn",
+            });
           } catch (error) {
             throw error;
           }

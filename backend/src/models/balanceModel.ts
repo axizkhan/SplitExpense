@@ -3,30 +3,31 @@ const { Schema } = mongoose;
 
 const BalanceSchema = new Schema(
   {
-    user1Id: {
+    groupId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Group",
+      required: true,
     },
-    user2Id: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
+
     journelId: {
       type: Schema.Types.ObjectId,
       ref: "Journel",
     },
-    groupId: {
-      type: Schema.Types.ObjectId,
-      ref: "Group",
-    },
-    user1_OweAmount: {
-      type: Number,
-      required: true,
-    },
-    user2_OweAmount: {
-      type: Number,
-      required: true,
-    },
+
+    balances: [
+      {
+        userId: {
+          type: Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        receivedAmount: {
+          type: Number,
+          required: true,
+        },
+      },
+    ],
+
     deletedAt: {
       type: Date,
       default: null,
